@@ -17,7 +17,7 @@ router.get('/hotels/:id', HotelController.getHotelById);
 router.put('/hotels/:id', HotelController.updateHotel);
 
 // Delete a hotel by ID
-router.delete('/hotels/:id', HotelController.deleteHotel);
+router.delete('/delete-hotel/:id', HotelController.deleteHotel);
 
 // Add a package to a hotel
 router.post('/hotels/:id/packages', HotelController.addPackageToHotel);

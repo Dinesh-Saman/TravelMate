@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, MenuItem, FormControl, Select, InputLabel, TablePagination, Avatar } from '@material-ui/core';
+import { 
+  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
+  Paper, Button, TextField, MenuItem, FormControl, Select, InputLabel, TablePagination, 
+  Avatar, Chip, Tooltip, IconButton, Collapse 
+} from '@material-ui/core';
 import Swal from 'sweetalert2';
 import Sidebar from '../../Components/sidebar';
 import Header from '../../Components/navbar';
 import { makeStyles } from '@material-ui/core/styles';
 import { useNavigate } from 'react-router-dom';
 import Rating from '@material-ui/lab/Rating';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 // Custom Pagination Component
 const CustomPagination = ({ count, page, rowsPerPage, onPageChange }) => {
@@ -54,6 +62,8 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'flex-start',
     minHeight: '80vh',
+    maxWidth: '100%',
+    overflowX: 'auto',
   },
   tableContainer: {
     width: '100%',
@@ -73,6 +83,24 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.75rem',
     fontWeight: 'bold',
     display: 'inline-block',
+  },
+  collapsible: {
+    padding: theme.spacing(2),
+    backgroundColor: '#f9f9f9',
+    borderRadius: '4px',
+  },
+  chipContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    maxWidth: '300px',
+  },
+  packageChip: {
+    margin: '2px',
+    backgroundColor: '#e0f7fa',
+  },
+  inclusionChip: {
+    margin: '2px',
+    backgroundColor: '#e8f5e9',
   }
 }));
 
@@ -83,7 +111,7 @@ const ViewHotels = () => {
   const [searchCriteria, setSearchCriteria] = useState("hotel_id");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [expandedRows, setExpandedRows] = useState({});
+  const [expandedRow, setExpandedRow] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,7 +120,6 @@ const ViewHotels = () => {
         const response = await axios.get('http://localhost:3001/hotel/get-hotels');
         
         // Check if response.data exists and has the expected structure
-        // If the response has a data property or some other property containing the array, use that
         if (Array.isArray(response.data)) {
           setHotelData(response.data);
         } else if (response.data && Array.isArray(response.data.hotels)) {
@@ -147,20 +174,6 @@ const ViewHotels = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        // First check if hotel has associated bookings
-        const bookingCheckResponse = await axios.get(`http://localhost:3001/booking/check-bookings/${id}`);
-        
-        if (bookingCheckResponse.data.hasBookings) {
-          // Show error message if hotel has bookings
-          Swal.fire({
-            title: 'Cannot Delete!',
-            text: 'Bookings associated with this hotel exist.',
-            icon: 'error',
-            confirmButtonColor: '#d33',
-          });
-          return;
-        }
-        
         // If no bookings, proceed with deletion
         await axios.delete(`http://localhost:3001/hotel/delete-hotel/${id}`);
         setHotelData(hotelData.filter(hotel => hotel._id !== id));
@@ -190,10 +203,15 @@ const ViewHotels = () => {
 
   const handleCriteriaChange = (event) => {
     setSearchCriteria(event.target.value);
+    setSearchQuery(""); // Reset search query when criteria changes
   };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+  };
+
+  const handleExpandRow = (id) => {
+    setExpandedRow(expandedRow === id ? null : id);
   };
 
   const filteredHotels = hotelData.filter(hotel => {
@@ -204,11 +222,27 @@ const ViewHotels = () => {
       return hotel[searchCriteria] === parseInt(searchQuery);
     }
     
+    // Handle searching in hotel_packages array if that's the criteria
+    if (searchCriteria === 'hotel_packages') {
+      const packages = hotel.hotel_packages || [];
+      return packages.some(pkg => 
+        pkg.package_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        pkg.package_description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
     const field = hotel[searchCriteria]?.toString().toLowerCase();
     return field?.includes(searchQuery.toLowerCase());
   });
 
   const paginatedHotels = filteredHotels.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  // Format date to display in a readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
 
   return (
     <Box>
@@ -237,9 +271,13 @@ const ViewHotels = () => {
                   <MenuItem value="hotel_id">Hotel ID</MenuItem>
                   <MenuItem value="hotel_name">Hotel Name</MenuItem>
                   <MenuItem value="city">City</MenuItem>
+                  <MenuItem value="address">Address</MenuItem>
                   <MenuItem value="phone_number">Phone Number</MenuItem>
+                  <MenuItem value="email">Email</MenuItem>
                   <MenuItem value="website">Website</MenuItem>
-                  <MenuItem value="star_rating">Star Rating</MenuItem>    
+                  <MenuItem value="star_rating">Star Rating</MenuItem>
+                  <MenuItem value="description">Description</MenuItem>
+                  <MenuItem value="hotel_packages">Packages</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -255,64 +293,149 @@ const ViewHotels = () => {
             <Table>
               <TableHead>
                 <TableRow style={{ backgroundColor: '#d4ac0d', color: 'white' }}>
+                  <TableCell style={{ color: 'white' }}></TableCell>
                   <TableCell style={{ color: 'white' }}>Image</TableCell>
                   <TableCell style={{ color: 'white' }}>Hotel ID</TableCell>
                   <TableCell style={{ color: 'white' }}>Hotel Name</TableCell>
                   <TableCell style={{ color: 'white' }}>City</TableCell>
                   <TableCell style={{ color: 'white' }}>Phone</TableCell>
-                  <TableCell style={{ color: 'white' }}>Website</TableCell>
                   <TableCell style={{ color: 'white' }}>Rating</TableCell>
+                  <TableCell style={{ color: 'white' }}>Packages</TableCell>
                   <TableCell style={{ color: 'white' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedHotels.map((hotel) => (
-                  <TableRow key={hotel._id}>
-                    <TableCell>
-                      <Avatar 
-                        src={hotel.hotel_image} 
-                        alt={hotel.hotel_name}
-                        className={classes.hotelImage}
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "https://via.placeholder.com/50?text=Hotel";
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell>{hotel.hotel_id}</TableCell>
-                    <TableCell>{hotel.hotel_name}</TableCell>
-                    <TableCell>{hotel.city}</TableCell>
-                    <TableCell>{hotel.phone_number}</TableCell>
-                    <TableCell>{hotel.website}</TableCell>
-                    <TableCell>
-                      <Rating 
-                        value={hotel.star_rating} 
-                        readOnly 
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex">
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          style={{ marginRight: '8px' }}
-                          onClick={() => handleUpdate(hotel._id)}
+                  <React.Fragment key={hotel._id}>
+                    <TableRow>
+                      <TableCell>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleExpandRow(hotel._id)}
                         >
-                          Update
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
+                          {expandedRow === hotel._id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <Avatar 
+                          src={hotel.hotel_image} 
+                          alt={hotel.hotel_name}
+                          className={classes.hotelImage}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://via.placeholder.com/50?text=Hotel";
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{hotel.hotel_id}</TableCell>
+                      <TableCell>{hotel.hotel_name}</TableCell>
+                      <TableCell>{hotel.city}</TableCell>
+                      <TableCell>{hotel.phone_number}</TableCell>
+                      <TableCell>
+                        <Rating 
+                          value={hotel.star_rating} 
+                          readOnly 
                           size="small"
-                          onClick={() => handleDelete(hotel._id)}
-                        >
-                          Delete
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <span className={classes.packageCount}>
+                          {hotel.hotel_packages?.length || 0}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" flexDirection="row" alignItems="center">
+                          <IconButton
+                            color="primary"
+                            onClick={() => handleUpdate(hotel._id)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton
+                            color="secondary"
+                            onClick={() => handleDelete(hotel._id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                        <Collapse in={expandedRow === hotel._id} timeout="auto" unmountOnExit>
+                          <Box 
+                            className={classes.collapsible} 
+                            margin={2} 
+                            padding={2} 
+                            sx={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: 1 }}
+                          >
+                            <Box marginBottom={1.5}>
+                              <Typography 
+                                variant="body2" 
+                                gutterBottom 
+                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
+                              >
+                                Contact Information
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242' }}>
+                                <strong>Address:</strong> {hotel.address}<br />
+                                <strong>Email:</strong> {hotel.email}<br />
+                                <strong>Phone:</strong> {hotel.phone_number}<br />
+                                <strong>Website:</strong> <a href={hotel.website} target="_blank" rel="noopener noreferrer">{hotel.website}</a>
+                              </Typography>
+                            </Box>
+
+                            <Box marginBottom={1.5}>
+                              <Typography 
+                                variant="body2" 
+                                gutterBottom 
+                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
+                              >
+                                Description
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242' }}>
+                                {hotel.description}
+                              </Typography>
+                            </Box>
+
+                            <Box marginBottom={1.5}>
+                              <Typography 
+                                variant="body2" 
+                                gutterBottom 
+                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
+                              >
+                                Available Packages
+                              </Typography>
+                              {hotel.hotel_packages && hotel.hotel_packages.length > 0 ? (
+                                hotel.hotel_packages.map((pkg, idx) => (
+                                  <Box key={idx} marginBottom={1} padding={1} sx={{ backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1976d2' }}>
+                                      {pkg.package_name} - ${pkg.price}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242' }}>
+                                      {pkg.package_description}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242', marginTop: '4px' }}>
+                                      <strong>Valid until:</strong> {formatDate(pkg.validity_period)}
+                                    </Typography>
+                                    <Box className={classes.chipContainer} sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, marginTop: '4px' }}>
+                                      {pkg.inclusions?.map((inclusion, index) => (
+                                        <Chip key={index} label={inclusion} color="primary" variant="outlined" size="small" className={classes.inclusionChip} />
+                                      ))}
+                                    </Box>
+                                  </Box>
+                                ))
+                              ) : (
+                                <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242' }}>
+                                  No packages available for this hotel.
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

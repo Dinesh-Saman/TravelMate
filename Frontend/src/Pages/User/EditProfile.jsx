@@ -4,12 +4,12 @@ import {
   Typography, FormHelperText, Grid, RadioGroup, FormControlLabel, Radio,
   IconButton, Chip, List, ListItem, Paper, Divider, Link
 } from '@material-ui/core';
-import Header from '../../Components/navbar';
 import axios from 'axios';
 import swal from 'sweetalert';
+import { useNavigate } from 'react-router-dom';
+import Header from '../../Components/navbar';
 
-const UserRegistration = () => {
-  // State variables for form fields
+const EditProfile = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [contact, setContact] = useState('');
@@ -20,51 +20,34 @@ const UserRegistration = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
-  const [userId, setUserId] = useState('');
+  const navigate = useNavigate();
 
-  // Function to generate user ID
-  const generateUserId = () => {
-    // Generate a random 8-digit number
-    const randomNum = Math.floor(10000000 + Math.random() * 90000000);
-    // Create user ID with USR prefix followed by 8 digits
-    return `USR${randomNum}`;
-  };
-
-  // Generate user ID on component mount
   useEffect(() => {
-    const newUserId = generateUserId();
-    setUserId(newUserId);
-  }, []);
-
-  // Calculate minimum date (18 years ago from today)
-  const today = new Date();
-  const minDate = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate()
-  ).toISOString().split('T')[0]; // Format as YYYY-MM-DD
-
-  // Effect to check if all required fields are filled
-  useEffect(() => {
-    const requiredFields = {
-      fullName,
-      email,
-      contact,
-      address,
-      dob,
-      gender,
-      password,
-      confirmPassword
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:3001/user/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        // Access the nested `user` object in the response
+        const userData = response.data.user;
+  
+        // Set the form fields with the user data
+        setFullName(userData.full_name);
+        setEmail(userData.email);
+        setContact(userData.contact);
+        setAddress(userData.address);
+        setDob(userData.dob.split('T')[0]); // Format date to YYYY-MM-DD
+        setGender(userData.gender);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        swal('Error', 'Failed to fetch user data. Please try again.', 'error');
+      }
     };
-
-    // Check if all required fields have values
-    const valid = Object.values(requiredFields).every(field => field !== '' && field !== null);
-
-    // Check if passwords match
-    const passwordsMatch = password === confirmPassword;
-
-    setIsFormValid(valid && passwordsMatch);
-  }, [fullName, email, contact, address, dob, gender, password, confirmPassword]);
+  
+    fetchUserData();
+  }, []);
 
   // Validate contact number (10 digits)
   const validateContact = (value) => {
@@ -118,6 +101,7 @@ const UserRegistration = () => {
     setErrors(prevErrors => ({ ...prevErrors, dob: '' }));
   };
 
+  // Validate form fields
   const validateForm = () => {
     const newErrors = {};
     if (!fullName) newErrors.fullName = "Full name is required.";
@@ -127,23 +111,13 @@ const UserRegistration = () => {
     else if (!validateContact(contact)) newErrors.contact = "Contact number must be 10 digits.";
     if (!address) newErrors.address = "Address is required.";
     if (!dob) newErrors.dob = "Date of birth is required.";
-    else {
-      const birthDate = new Date(dob);
-      const ageDate = new Date(today - birthDate);
-      const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-
-      if (age < 18) {
-        newErrors.dob = "User must be at least 18 years old.";
-      }
-    }
     if (!gender) newErrors.gender = "Gender is required.";
-    if (!password) newErrors.password = "Password is required.";
-    if (!confirmPassword) newErrors.confirmPassword = "Confirm password is required.";
-    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match.";
+    if (password && password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match.";
 
     return newErrors;
   };
 
+  // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
     const validationErrors = validateForm();
@@ -152,64 +126,27 @@ const UserRegistration = () => {
       return;
     }
 
-    // Format date of birth for backend
-    const formattedDOB = new Date(dob).toISOString();
-
-    const newUser = {
-      user_id: userId,
+    const updatedUser = {
       full_name: fullName,
       email,
       contact,
       address,
-      dob: formattedDOB,
+      dob,
       gender,
-      password
+      password: password || undefined, // Only include password if it's provided
     };
 
     try {
-      // Create the user
-      await axios.post('http://localhost:3001/user/register', newUser);
+      const token = localStorage.getItem('token');
+      await axios.put('http://localhost:3001/user/profile', updatedUser, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      swal("Success", "User registered successfully!", "success");
-
-      // Reset form fields but keep the user ID
-      setFullName('');
-      setEmail('');
-      setContact('');
-      setAddress('');
-      setDob('');
-      setGender('');
-      setPassword('');
-      setConfirmPassword('');
-      setErrors({});
-
-      // Generate a new user ID for the next entry
-      const newUserId = generateUserId();
-      setUserId(newUserId);
+      swal('Success', 'Profile updated successfully!', 'success');
+      navigate('/'); // Redirect to dashboard after update
     } catch (error) {
-      console.error(error);
-
-      // Check if it's a duplicate error (HTTP 409 Conflict)
-      if (error.response && error.response.status === 409) {
-        // Show the specific error message from the server
-        swal("Error", error.response.data.message, "error");
-
-        // Set appropriate field error based on the error message
-        if (error.response.data.message.includes("contact")) {
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            contact: "This contact number is already registered"
-          }));
-        } else if (error.response.data.message.includes("email")) {
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            email: "This email is already registered"
-          }));
-        }
-      } else {
-        // Generic error message for other errors
-        swal("Error", "Something went wrong. Please try again.", "error");
-      }
+      console.error('Error updating profile:', error);
+      swal('Error', 'Failed to update profile. Please try again.', 'error');
     }
   };
 
@@ -250,29 +187,11 @@ const UserRegistration = () => {
             marginBottom: '30px'
           }}
         >
-          Register for TravelMate
+          Edit Profile
         </Typography>
 
         {/* Form Section */}
         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
-          {/* User ID field (read-only) with gray styling */}
-          <TextField
-            fullWidth
-            margin="normal"
-            label="User ID"
-            variant="outlined"
-            value={userId}
-            InputProps={{
-              readOnly: true,
-              style: {
-                backgroundColor: '#f0f0f0', // Light gray background
-                color: '#757575',           // Darker gray text
-                cursor: 'not-allowed',      // Change cursor to indicate it's not editable
-              },
-            }}
-            helperText="System generated ID (cannot be modified)"
-          />
-
           <TextField
             fullWidth
             margin="normal"
@@ -323,7 +242,6 @@ const UserRegistration = () => {
             required
           />
 
-          {/* Native HTML date input instead of Material-UI DatePicker */}
           <TextField
             fullWidth
             margin="normal"
@@ -333,8 +251,7 @@ const UserRegistration = () => {
             InputLabelProps={{ shrink: true }}
             value={dob}
             onChange={handleDobChange}
-            inputProps={{ max: minDate }}
-            helperText={errors.dob || "Must be at least 18 years old"}
+            helperText={errors.dob}
             error={!!errors.dob}
             required
           />
@@ -354,32 +271,6 @@ const UserRegistration = () => {
             <FormHelperText>{errors.gender}</FormHelperText>
           </FormControl>
 
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Password"
-            type="password"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            helperText={errors.password}
-            error={!!errors.password}
-            required
-          />
-
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Confirm Password"
-            type="password"
-            variant="outlined"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            helperText={errors.confirmPassword}
-            error={!!errors.confirmPassword}
-            required
-          />
-
           <Button
             fullWidth
             variant="contained"
@@ -387,24 +278,13 @@ const UserRegistration = () => {
             size="large"
             type="submit"
             style={{ marginTop: 25 }}
-            disabled={!isFormValid}
           >
-            Register User
+            Update Profile
           </Button>
-          
-          {/* Login link */}
-          <Box mt={4} textAlign="center">
-            <Typography variant="body1">
-              Already have an account?{' '}
-              <Link href="/login" style={{ fontWeight: 'bold' }}>
-                Login here
-              </Link>
-            </Typography>
-          </Box>
         </Box>
       </Box>
     </Box>
   );
 };
 
-export default UserRegistration;
+export default EditProfile;

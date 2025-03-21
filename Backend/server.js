@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 // Import the user routes
 const UserRoutes = require("./routes/userRoute");
 const HotelRoutes = require("./routes/hotelRoute");
+const DestinationRoutes = require("./routes/destinationRoute");
 
 const app = express();
 
@@ -26,6 +27,7 @@ db_connection();
 // Use the user routes
 app.use("/user", UserRoutes);  
 app.use("/hotel", HotelRoutes);  
+app.use("/destination", DestinationRoutes);  
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

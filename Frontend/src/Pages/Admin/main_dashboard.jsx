@@ -90,7 +90,7 @@ const MainDashboard = () => {
     {
       title: 'Destination Management',
       illustration: 'https://img.freepik.com/free-photo/girl-red-dress-dancing-waterfall_72229-1288.jpg?uid=R70363395&ga=GA1.1.265447444.1742467879', // Replace with your image URL
-      path: '/service-maintenance',
+      path: '/view-destination',
     },
     {
       title: 'Tour Package Management',

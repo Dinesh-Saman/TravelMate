@@ -1,57 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, IconButton, Menu, MenuItem, Avatar } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom'; // Import Link
 import './guest_header.css';
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [firstName, setFirstName] = useState('Admin'); // Default to Admin
-  const token = localStorage.getItem('token'); 
-  const navigate = useNavigate(); 
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
 
-// Modify the useEffect in Header.js
-useEffect(() => {
-  // Check if username exists in localStorage
-  const storedUsername = localStorage.getItem('username');
-  
-  if (storedUsername) {
-    // If username exists in localStorage, use it
-    setFirstName(storedUsername);
-  } else if (token) {
-    // If no username in localStorage but token exists, try to fetch from server
-    const fetchUserDetails = async () => {
-      try {
-        const response = await fetch('http://localhost:3002/user-profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await response.json();
+  // Handle profile icon click
+  const handleProfileClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-        if (response.ok) {
-          setFirstName(data.firstName);
-          // Store all user details in localStorage for future use
-          localStorage.setItem('username', data.firstName);
-          localStorage.setItem('userEmail', data.email);
-          localStorage.setItem('userId', data._id);
-          // Add more details as needed
-        }
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      }
-    };
+  // Handle menu close
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-    fetchUserDetails();
-  }
-}, [token]);
+  // Handle "Edit Profile" click
+  const handleEditProfile = () => {
+    handleClose();
+    navigate('/edit-profile'); // Navigate to the edit profile page
+  };
 
-  const handleProfileClick = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+  // Handle "Logout" click
   const handleLogout = () => {
-    localStorage.removeItem('token'); 
-    localStorage.removeItem('username'); // Remove username when logging out
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
     setFirstName('Admin'); // Reset to default
     handleClose();
-    navigate('/login'); 
+    navigate('/login'); // Navigate to the login page
   };
 
   return (
@@ -65,11 +48,14 @@ useEffect(() => {
         </Box>
 
         <Box className="logo-section">
-          <img 
-            src="https://intercambioeviagem.com.br/wp-content/uploads/2016/08/TravelMate-Logo.png" 
-            alt="Logo" 
-            className="logo" 
-          />
+          {/* Wrap the logo in a Link component */}
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <img
+              src="https://intercambioeviagem.com.br/wp-content/uploads/2016/08/TravelMate-Logo.png"
+              alt="Logo"
+              className="logo"
+            />
+          </Link>
         </Box>
 
         <Box className="icon-section">
@@ -81,12 +67,12 @@ useEffect(() => {
           {token ? (
             <>
               <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
-                Hi, {firstName}
+                Hi, {localStorage.getItem('username') || firstName}
               </Typography>
               <IconButton color="inherit" onClick={handleProfileClick}>
-                <Avatar 
-                  src="https://www.w3schools.com/howto/img_avatar.png" 
-                  alt="User Avatar" 
+                <Avatar
+                  src="https://www.w3schools.com/howto/img_avatar.png"
+                  alt="User Avatar"
                   style={{ width: 40, height: 40 }}
                 />
               </IconButton>
@@ -94,12 +80,12 @@ useEffect(() => {
           ) : (
             <>
               <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
-                Hi, Admin
+                Hi, User
               </Typography>
               <IconButton color="inherit" onClick={handleProfileClick}>
-                <Avatar 
-                  src="https://www.w3schools.com/howto/img_avatar.png" 
-                  alt="Guest Avatar" 
+                <Avatar
+                  src="https://www.w3schools.com/howto/img_avatar.png"
+                  alt="Guest Avatar"
                   style={{ width: 40, height: 40 }}
                 />
               </IconButton>
@@ -107,9 +93,26 @@ useEffect(() => {
           )}
 
           {/* Profile Dropdown Menu */}
-          <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+          <Menu
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom', // Anchor at the bottom of the icon
+              horizontal: 'right', // Align to the right of the icon
+            }}
+            transformOrigin={{
+              vertical: 'top', // Start the menu from the top
+              horizontal: 'right', // Align to the right
+            }}
+            getContentAnchorEl={null} // Prevents Material-UI from overriding the anchor position
+          >
             {token ? (
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <>
+                <MenuItem onClick={handleEditProfile}>Edit Profile</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </>
             ) : (
               <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
             )}

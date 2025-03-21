@@ -2,16 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
-  FaTachometerAlt, FaCar, FaPlusCircle, 
+  FaTachometerAlt, FaHotel, FaPlusCircle, 
   FaFileAlt, FaChartLine, FaSignOutAlt, FaHome 
 } from 'react-icons/fa';
 import Logo from '../Images/logo.png';
 
-// Styled components
 const SidebarContainer = styled.div`
   width: 220px;
   height: auto;
-  background: url('https://img.freepik.com/premium-photo/illustration-dark-black-geometric-abstract_1163991-353.jpg?semt=ais_hybrid') repeat;
+  background: url('https://img.freepik.com/free-vector/decorative-background-with-purple-damask-pattern_1048-3458.jpg') repeat;
   background-size: auto;
   padding: 20px;
   display: flex;
@@ -27,10 +26,11 @@ const SidebarContainer = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.50); /* Increased darkness */
     z-index: 0;
   }
 `;
+
 
 const LogoContainer = styled.div`
   display: flex;
@@ -57,7 +57,7 @@ const MenuItem = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 15px;
-  font-size: 18px;
+  font-size: 21px;
   cursor: pointer;
   padding: 10px;
   border-radius: 4px;
@@ -87,42 +87,37 @@ const Sidebar = () => {
         <LogoImage style={{ width: '180px' }} />
       </LogoContainer>
       <Menu>
-        <Link to="/owner-management" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <MenuItem>
-            <Icon><FaTachometerAlt /></Icon>
-            Dashboard
-          </MenuItem>
-        </Link>
-        <Link to="/view-owner" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <MenuItem>
-            <Icon><FaCar /></Icon>
-            View Owners
-          </MenuItem>
-        </Link>
-        <Link to="/add-owner" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <MenuItem>
-            <Icon><FaPlusCircle /></Icon>
-            Add Owner
-          </MenuItem>
-        </Link>
-        <Link to="/owner-report" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <MenuItem>
-            <Icon><FaFileAlt /></Icon>
-            Owner Report
-          </MenuItem>
-        </Link>
-        <Link to="/analysis-report" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <MenuItem>
-            <Icon><FaChartLine /></Icon>
-            Analysis Report
-          </MenuItem>
-        </Link>
-        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
             <Icon><FaHome /></Icon>
             Home
           </MenuItem>
         </Link>
+        <Link to="/hotel-management" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem>
+            <Icon><FaTachometerAlt /></Icon>
+            Dashboard
+          </MenuItem>
+        </Link>
+        <Link to="/view-destination" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem>
+            <Icon><FaHotel /></Icon>
+            View Destination
+          </MenuItem>
+        </Link>
+        <Link to="/add-destination" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem>
+            <Icon><FaPlusCircle /></Icon>
+            Add Destination
+          </MenuItem>
+        </Link>
+        <Link to="/destination-report" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem>
+            <Icon><FaFileAlt /></Icon>
+            Destination Report
+          </MenuItem>
+        </Link>
+
       </Menu>
       <SignOutContainer>
         <Link to="/main-dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
