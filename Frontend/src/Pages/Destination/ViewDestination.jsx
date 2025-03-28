@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TextField, MenuItem, FormControl, Select, InputLabel, TablePagination, Avatar, Chip, Tooltip, IconButton, Collapse } from '@material-ui/core';
+import { 
+  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
+  Paper, TextField, MenuItem, FormControl, Select, InputLabel, Avatar, Chip, 
+  IconButton, Collapse, Grid, Card, CardContent, CardHeader, Divider, TablePagination
+} from '@material-ui/core';
 import Swal from 'sweetalert2';
 import Sidebar from '../../Components/destination_sidebar';
-import Header from '../../Components/navbar';
 import { makeStyles } from '@material-ui/core/styles';
 import { useNavigate } from 'react-router-dom';
 import Rating from '@material-ui/lab/Rating';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import StarIcon from '@material-ui/icons/Star';
+import TravelExploreIcon from '@material-ui/icons/ExploreOutlined'; 
+import ClimateIcon from '@material-ui/icons/WbSunny';
+import LocalActivityIcon from '@material-ui/icons/LocalActivity';
+import HotelIcon from '@material-ui/icons/Hotel';
+import TipsIcon from '@material-ui/icons/InfoOutlined';
+import InfoIcon from '@material-ui/icons/Info';
 
 // Custom Pagination Component
 const CustomPagination = ({ count, page, rowsPerPage, onPageChange }) => {
@@ -21,8 +31,8 @@ const CustomPagination = ({ count, page, rowsPerPage, onPageChange }) => {
       page={page}
       rowsPerPage={rowsPerPage}
       onPageChange={onPageChange}
-      rowsPerPageOptions={[]} // Hide rows per page selector
-      labelRowsPerPage="" // Hide rows per page label
+      rowsPerPageOptions={[]}
+      labelRowsPerPage=""
     />
   );
 };
@@ -64,43 +74,125 @@ const useStyles = makeStyles((theme) => ({
   tableContainer: {
     width: '100%',
     overflowX: 'auto',
+    marginBottom: theme.spacing(3),
+    borderRadius: 8,
+    '& .MuiTable-root': {
+      borderCollapse: 'separate',
+      borderSpacing: '0 8px'
+    },
   },
-  destinationImage: {
-    width: 50,
-    height: 50,
-    borderRadius: '50%',
-    objectFit: 'cover',
+  tableRow: {
+    backgroundColor: '#f9f9f9',
+    '&:hover': {
+      backgroundColor: '#f1f1f1',
+    },
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+    borderRadius: 8,
+  },
+  tableHeadRow: {
+    backgroundColor: '#d4ac0d',
+  },
+  tableHeadCell: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  destinationAvatar: {
+    width: 60,
+    height: 60,
+    backgroundColor: theme.palette.primary.main,
+    boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
+    border: '2px solid white',
+  },
+  detailsContainer: {
+    padding: theme.spacing(3),
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    margin: theme.spacing(2, 0),
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  },
+  userInfoFlex: {
+    display: 'flex',
+    padding: theme.spacing(2),
+    borderRadius: 8,
+    backgroundColor: '#f8f9fa',
+    marginBottom: theme.spacing(3),
+  },
+  destinationAvatarLarge: {
+    width: 100,
+    height: 100,
+    marginRight: theme.spacing(4),
+    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+    border: '3px solid white',
+  },
+  destinationDetailsSection: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  destinationName: {
+    fontWeight: 'bold',
+    fontSize: '1.2rem',
+    marginBottom: theme.spacing(1),
+    color: theme.palette.primary.dark,
+  },
+  cardHeader: {
+    backgroundColor: theme.palette.primary.main,
+    color: 'white',
+    padding: theme.spacing(1.5),
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  cardHeaderLocation: {
+    backgroundColor: '#43a047',
+  },
+  cardHeaderClimate: {
+    backgroundColor: '#1976d2',
+  },
+  cardHeaderRating: {
+    backgroundColor: '#7b1fa2',
+  },
+  cardIcon: {
+    marginRight: theme.spacing(1),
+    color: 'white',
+  },
+  infoRow: {
+    display: 'flex',
+    alignItems: 'center',
+    margin: theme.spacing(1.5, 0),
+    '& svg': {
+      marginRight: theme.spacing(1),
+      color: theme.palette.primary.main,
+    },
+  },
+  infoLabel: {
+    fontWeight: 'bold',
+    color: theme.palette.text.secondary,
+    minWidth: 120,
+  },
+  infoValue: {
+    color: theme.palette.text.primary,
+  },
+  actionButton: {
+    margin: theme.spacing(0.5),
+  },
+  deleteButton: {
+    backgroundColor: '#f44336',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: '#d32f2f',
+    },
+  },
+  editButton: {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: '#2E7D32',
+    },
   },
   attractionChip: {
-    margin: '2px',
+    margin: theme.spacing(0.5),
     backgroundColor: '#e0f7fa',
-  },
-  accommodationChip: {
-    margin: '2px',
-    backgroundColor: '#e8f5e9',
-  },
-  activityChip: {
-    margin: '2px',
-    backgroundColor: '#fff3e0',
-  },
-  climateChip: {
-    backgroundColor: '#d4ac0d',
-    color: 'white',
-    borderRadius: '12px',
-    padding: '3px 8px',
-    fontSize: '0.75rem',
-    fontWeight: 'bold',
-    display: 'inline-block',
-  },
-  collapsible: {
-    padding: theme.spacing(2),
-    backgroundColor: '#f9f9f9',
-    borderRadius: '4px',
-  },
-  chipContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    maxWidth: '300px',
   }
 }));
 
@@ -119,30 +211,24 @@ const ViewDestinations = () => {
       try {
         const response = await axios.get('http://localhost:3001/destination/get-destinations');
         
-        // Check if response.data exists and has the expected structure
         if (Array.isArray(response.data)) {
           setDestinationData(response.data);
         } else if (response.data && Array.isArray(response.data.destinations)) {
-          // If the array is nested in a 'destinations' property
           setDestinationData(response.data.destinations);
         } else if (response.data && Array.isArray(response.data.data)) {
-          // If the array is nested in a 'data' property
           setDestinationData(response.data.data);
         } else {
-          // If nothing works, initialize as empty array
           console.error("Unexpected API response format:", response.data);
           setDestinationData([]);
         }
       } catch (error) {
         console.error("There was an error fetching the destination data!", error);
-        // Show error message with SweetAlert
         Swal.fire({
           title: 'Error!',
           text: 'Failed to load destination data',
           icon: 'error',
           confirmButtonColor: '#d33',
         });
-        // Initialize as empty array on error
         setDestinationData([]);
       }
     };
@@ -150,18 +236,7 @@ const ViewDestinations = () => {
     fetchDestinationData();
   }, []);
 
-  const handleUpdate = (destinationId) => {
-    console.log(`Update destination with ID: ${destinationId}`);
-    navigate(`/update-destination/${destinationId}`); // Navigate to the update page
-  };
-
-  const handleViewDetails = (destinationId) => {
-    console.log(`View details for destination with ID: ${destinationId}`);
-    navigate(`/destination-details/${destinationId}`); // Navigate to the details page
-  };
-
   const handleDelete = async (id) => {
-    // First confirm deletion with SweetAlert
     const confirmResult = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -174,11 +249,9 @@ const ViewDestinations = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        // If no bookings, proceed with deletion
         await axios.delete(`http://localhost:3001/destination/delete-destination/${id}`);
         setDestinationData(destinationData.filter(destination => destination._id !== id));
         
-        // Show success message
         Swal.fire({
           title: 'Deleted!',
           text: 'Destination has been deleted successfully.',
@@ -197,13 +270,18 @@ const ViewDestinations = () => {
     }
   };
 
+  const handleUpdate = (destinationId) => {
+    console.log(`Update destination with ID: ${destinationId}`);
+    navigate(`/update-destination/${destinationId}`);
+  };
+
   const handleSearchQueryChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
   const handleCriteriaChange = (event) => {
     setSearchCriteria(event.target.value);
-    setSearchQuery(""); // Reset search query when criteria changes
+    setSearchQuery("");
   };
 
   const handleChangePage = (event, newPage) => {
@@ -217,35 +295,11 @@ const ViewDestinations = () => {
   const filteredDestinations = destinationData.filter(destination => {
     if (!searchQuery) return true;
     
-    // Handle special case for destination_rating which is a number
-    if (searchCriteria === 'destination_rating') {
-      return destination[searchCriteria] === parseInt(searchQuery);
-    }
-    
-    // Handle special case for climate which is an enum
-    if (searchCriteria === 'climate') {
-      return destination[searchCriteria]?.toLowerCase() === searchQuery.toLowerCase();
-    }
-    
-    // Handle arrays (popular_attractions, accommodation_options, activities)
-    if (['popular_attractions', 'accommodation_options', 'activities'].includes(searchCriteria)) {
-      const arrayField = destination[searchCriteria] || [];
-      return arrayField.some(item => 
-        item.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
     const field = destination[searchCriteria]?.toString().toLowerCase();
     return field?.includes(searchQuery.toLowerCase());
   });
 
   const paginatedDestinations = filteredDestinations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-  // Helper function to truncate long text
-  const truncateText = (text, maxLength = 30) => {
-    if (!text) return '';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  };
 
   return (
     <Box>
@@ -259,6 +313,7 @@ const ViewDestinations = () => {
             width="100%"
             display="flex"
             flexDirection="row"
+            marginBottom={3}
           >
             <Typography variant="h4" gutterBottom style={{ marginBottom: '20px', fontFamily: 'cursive', fontWeight: 'bold', color: 'purple', textAlign: 'center' }}>
               Destinations List
@@ -276,12 +331,6 @@ const ViewDestinations = () => {
                   <MenuItem value="location">Location</MenuItem>
                   <MenuItem value="climate">Climate</MenuItem>
                   <MenuItem value="destination_rating">Rating</MenuItem>
-                  <MenuItem value="destination_description">Description</MenuItem>
-                  <MenuItem value="popular_attractions">Attractions</MenuItem>
-                  <MenuItem value="best_time_to_visit">Best Time to Visit</MenuItem>
-                  <MenuItem value="travel_tips">Travel Tips</MenuItem>
-                  <MenuItem value="accommodation_options">Accommodations</MenuItem>
-                  <MenuItem value="activities">Activities</MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -296,50 +345,56 @@ const ViewDestinations = () => {
           <TableContainer component={Paper} className={classes.tableContainer}>
             <Table>
               <TableHead>
-                <TableRow style={{ backgroundColor: '#d4ac0d', color: 'white' }}>
-                  <TableCell style={{ color: 'white' }}></TableCell>
-                  <TableCell style={{ color: 'white' }}>Image</TableCell>
-                  <TableCell style={{ color: 'white' }}>ID</TableCell>
-                  <TableCell style={{ color: 'white' }}>Name</TableCell>
-                  <TableCell style={{ color: 'white' }}>Location</TableCell>
-                  <TableCell style={{ color: 'white' }}>Climate</TableCell>
-                  <TableCell style={{ color: 'white' }}>Rating</TableCell>
-                  <TableCell style={{ color: 'white' }}>Best Time</TableCell>
-                  <TableCell style={{ color: 'white' }}>Actions</TableCell>
+                <TableRow className={classes.tableHeadRow}>
+                  <TableCell className={classes.tableHeadCell}></TableCell>
+                  <TableCell className={classes.tableHeadCell}>Image</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Destination ID</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Destination Name</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Location</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Climate</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Rating</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Best Time</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedDestinations.map((destination) => (
                   <React.Fragment key={destination._id}>
-                    <TableRow>
+                    <TableRow className={classes.tableRow}>
                       <TableCell>
                         <IconButton 
                           size="small" 
                           onClick={() => handleExpandRow(destination._id)}
+                          style={{ transform: expandedRow === destination._id ? 'rotate(180deg)' : 'rotate(0deg)' }}
                         >
-                          {expandedRow === destination._id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                          <ExpandMoreIcon />
                         </IconButton>
                       </TableCell>
                       <TableCell>
-                        <Avatar 
-                          src={destination.destination_image} 
-                          alt={destination.destination_name}
-                          className={classes.destinationImage}
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "https://via.placeholder.com/50?text=Destination";
-                          }}
-                        />
+                        {destination.destination_image ? (
+                          <Avatar 
+                            className={classes.destinationAvatar} 
+                            src={destination.destination_image}
+                            alt={destination.destination_name}
+                            onError={(e) => {
+                              console.error("Error loading image");
+                              e.target.onerror = null; 
+                              e.target.src = ""; 
+                            }}
+                          />
+                        ) : (
+                          <Avatar className={classes.destinationAvatar}>
+                            {destination.destination_name ? destination.destination_name.charAt(0).toUpperCase() : 'D'}
+                          </Avatar>
+                        )}
                       </TableCell>
-                      <TableCell>{destination.destination_id}</TableCell>
-                      <TableCell>{destination.destination_name}</TableCell>
+                      <TableCell><strong>{destination.destination_id}</strong></TableCell>
+                      <TableCell><strong>{destination.destination_name}</strong></TableCell>
                       <TableCell>{destination.location}</TableCell>
-                      <TableCell>
-                        <span className={classes.climateChip}>{destination.climate}</span>
-                      </TableCell>
+                      <TableCell>{destination.climate}</TableCell>
                       <TableCell>
                         <Rating 
-                          value={destination.destination_rating} 
+                          value={destination.destination_rating || 0} 
                           readOnly 
                           size="small"
                         />
@@ -347,105 +402,244 @@ const ViewDestinations = () => {
                       <TableCell>{destination.best_time_to_visit}</TableCell>
                       <TableCell>
                         <Box display="flex" flexDirection="row" alignItems="center">
-                            <IconButton
-                            color="primary"
+                          <IconButton
+                            className={`${classes.actionButton} ${classes.editButton}`}
+                            size="small"
                             onClick={() => handleUpdate(destination._id)}
-                            >
-                            <EditIcon />
-                            </IconButton>
-                            <IconButton
-                            color="secondary"
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+
+                          <IconButton
+                            className={`${classes.actionButton} ${classes.deleteButton}`}
+                            size="small"
                             onClick={() => handleDelete(destination._id)}
-                            >
-                            <DeleteIcon />
-                            </IconButton>
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
                         </Box>
-                        </TableCell>
+                      </TableCell>
                     </TableRow>
-                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}> {/* Light background for better contrast */}
-                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                    <TableRow>
+                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
                         <Collapse in={expandedRow === destination._id} timeout="auto" unmountOnExit>
-                        <Box 
-                            className={classes.collapsible} 
-                            margin={2} 
-                            padding={2} 
-                            sx={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: 1 }}
-                        >
-                            <Box marginBottom={1.5}>
-                            <Typography 
-                                variant="body2" 
-                                gutterBottom 
-                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
-                            >
-                                Description
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242' }}>
-                                {destination.destination_description}
-                            </Typography>
+                          <Box className={classes.detailsContainer}>
+                            <Box className={classes.userInfoFlex}>
+                              {destination.destination_image ? (
+                                <Avatar 
+                                  className={classes.destinationAvatarLarge} 
+                                  src={destination.destination_image}
+                                  alt={destination.destination_name}
+                                  onError={(e) => {
+                                    console.error("Error loading image");
+                                    e.target.onerror = null; 
+                                    e.target.src = ""; 
+                                  }}
+                                />
+                              ) : (
+                                <Avatar className={classes.destinationAvatarLarge}>
+                                  {destination.destination_name ? destination.destination_name.charAt(0).toUpperCase() : 'D'}
+                                </Avatar>
+                              )}
+                              <Box className={classes.destinationDetailsSection}>
+                                <Typography variant="h5" className={classes.destinationName}>
+                                  {destination.destination_name}
+                                </Typography>
+                                <Typography variant="body1" color="textSecondary">
+                                  {destination.destination_id}
+                                </Typography>
+                                <Box mt={1}>
+                                  <Rating 
+                                    value={destination.destination_rating || 0} 
+                                    readOnly 
+                                    size="small"
+                                  />
+                                </Box>
+                              </Box>
                             </Box>
+                            
+                            <Grid container spacing={3}>
+                              {/* Location Information Card */}
+                              <Grid item xs={12} md={4}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader} ${classes.cardHeaderLocation}`}
+                                    avatar={<LocationOnIcon className={classes.cardIcon} />}
+                                    title="Location Information"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    <Box className={classes.infoRow}>
+                                      <LocationOnIcon fontSize="small" />
+                                      <Typography className={classes.infoLabel}>Location:</Typography>
+                                      <Typography className={classes.infoValue}>{destination.location}</Typography>
+                                    </Box>
+                                    <Divider light />
+                                    <Box className={classes.infoRow}>
+                                      <TravelExploreIcon fontSize="small" />
+                                      <Typography className={classes.infoLabel}>Best Time to Visit:</Typography>
+                                      <Typography className={classes.infoValue}>{destination.best_time_to_visit}</Typography>
+                                    </Box>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                              
+                              {/* Climate Information Card */}
+                              <Grid item xs={12} md={4}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader} ${classes.cardHeaderClimate}`}
+                                    avatar={<ClimateIcon className={classes.cardIcon} />}
+                                    title="Climate Information"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    <Box className={classes.infoRow}>
+                                      <ClimateIcon fontSize="small" />
+                                      <Typography className={classes.infoLabel}>Climate:</Typography>
+                                      <Typography className={classes.infoValue}>{destination.climate}</Typography>
+                                    </Box>
+                                    <Divider light />
+                                    <Box className={classes.infoRow}>
+                                      <Typography className={classes.infoLabel}>Popular Attractions:</Typography>
+                                      <Chip 
+                                        label={destination.popular_attractions?.length || 0} 
+                                        size="small" 
+                                        className={classes.attractionChip}
+                                      />
+                                    </Box>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                              
+                              {/* Rating Information Card */}
+                              <Grid item xs={12} md={4}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader} ${classes.cardHeaderRating}`}
+                                    avatar={<StarIcon className={classes.cardIcon} />}
+                                    title="Rating Information"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    <Box className={classes.infoRow}>
+                                      <Typography className={classes.infoLabel}>Destination Rating:</Typography>
+                                      <Rating 
+                                        value={destination.destination_rating || 0} 
+                                        readOnly 
+                                        size="small"
+                                      />
+                                    </Box>
+                                    <Divider light />
+                                    <Box className={classes.infoRow}>
+                                      <Typography className={classes.infoLabel}>Description:</Typography>
+                                      <Typography className={classes.infoValue} noWrap>
+                                        {destination.destination_description || 'N/A'}
+                                      </Typography>
+                                    </Box>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
 
-                            <Box marginBottom={1.5}>
-                            <Typography 
-                                variant="body2" 
-                                gutterBottom 
-                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
-                            >
-                                Popular Attractions
-                            </Typography>
-                            <Box className={classes.chipContainer} sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {destination.popular_attractions?.map((attraction, index) => (
-                                <Chip key={index} label={attraction} color="primary" variant="outlined" size="small" />
-                                ))}
-                            </Box>
-                            </Box>
+                              {/* Popular Attractions Card */}
+                              <Grid item xs={12} md={4}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader}`}
+                                    style={{ backgroundColor: '#2196f3' }}
+                                    avatar={<LocalActivityIcon className={classes.cardIcon} />}
+                                    title="Popular Attractions"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    {destination.popular_attractions && destination.popular_attractions.length > 0 ? (
+                                      destination.popular_attractions.map((attraction, index) => (
+                                        <Box key={index} className={classes.infoRow}>
+                                          <Typography className={classes.infoValue}>
+                                            • {attraction}
+                                          </Typography>
+                                        </Box>
+                                      ))
+                                    ) : (
+                                      <Typography className={classes.infoValue}>No attractions found</Typography>
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              </Grid>
 
-                            <Box marginBottom={1.5}>
-                            <Typography 
-                                variant="body2" 
-                                gutterBottom 
-                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
-                            >
-                                Accommodation Options
-                            </Typography>
-                            <Box className={classes.chipContainer} sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {destination.accommodation_options?.map((accommodation, index) => (
-                                <Chip key={index} label={accommodation} color="secondary" variant="outlined" size="small" />
-                                ))}
-                            </Box>
-                            </Box>
+                              {/* Accommodation Options Card */}
+                              <Grid item xs={12} md={4}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader}`}
+                                    style={{ backgroundColor: '#4caf50' }}
+                                    avatar={<HotelIcon className={classes.cardIcon} />}
+                                    title="Accommodation Options"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    {destination.accommodation_options && destination.accommodation_options.length > 0 ? (
+                                      destination.accommodation_options.map((accommodation, index) => (
+                                        <Box key={index} className={classes.infoRow}>
+                                          <Typography className={classes.infoValue}>
+                                            • {accommodation}
+                                          </Typography>
+                                        </Box>
+                                      ))
+                                    ) : (
+                                      <Typography className={classes.infoValue}>No accommodations found</Typography>
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              </Grid>
 
-                            <Box marginBottom={1.5}>
-                            <Typography 
-                                variant="body2" 
-                                gutterBottom 
-                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
-                            >
-                                Activities
-                            </Typography>
-                            <Box className={classes.chipContainer} sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                {destination.activities?.map((activity, index) => (
-                                <Chip key={index} label={activity} color="success" variant="outlined" size="small" />
-                                ))}
-                            </Box>
-                            </Box>
+                              {/* Travel Tips Card */}
+                              <Grid item xs={12} md={4}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader}`}
+                                    style={{ backgroundColor: '#ff9800' }}
+                                    avatar={<TipsIcon className={classes.cardIcon} />}
+                                    title="Travel Tips"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    <Typography className={classes.infoValue}>
+                                      {destination.travel_tips || 'No travel tips available'}
+                                    </Typography>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
 
-                            <Box marginBottom={1.5}>
-                            <Typography 
-                                variant="body2" 
-                                gutterBottom 
-                                sx={{ fontWeight: 'bold', fontSize: '0.875rem', color: '#1976d2' }}
-                            >
-                                Travel Tips
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontSize: '0.75rem', color: '#424242' }}>
-                                {destination.travel_tips}
-                            </Typography>
-                            </Box>
-                        </Box>
+                              {/* Full Description Card - Spanning full width */}
+                              <Grid item xs={12}>
+                                <Card>
+                                  <CardHeader
+                                    className={`${classes.cardHeader}`}
+                                    style={{ backgroundColor: '#9c27b0' }}
+                                    avatar={<InfoIcon className={classes.cardIcon} />}
+                                    title="Destination Description"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    <Typography variant="body1" className={classes.infoValue}>
+                                      {destination.destination_description || 'No description available'}
+                                    </Typography>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                            </Grid>
+                          </Box>
                         </Collapse>
-                    </TableCell>
+                      </TableCell>
                     </TableRow>
-
                   </React.Fragment>
                 ))}
               </TableBody>

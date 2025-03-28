@@ -1,40 +1,154 @@
-import React, { useState } from 'react';
-import { Box, Typography, IconButton, Menu, MenuItem, Avatar } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import { 
+  Box, 
+  Typography, 
+  IconButton, 
+  Menu, 
+  MenuItem, 
+  Avatar,
+  Divider,
+  ListItemIcon,
+  makeStyles 
+} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  AccountCircle,
+  ExitToApp,
+  Settings,
+  Person,
+  Edit
+} from '@material-ui/icons';
 import './guest_header.css';
 
+const useStyles = makeStyles((theme) => ({
+  menuPaper: {
+    minWidth: 220,
+    borderRadius: 8,
+    boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.15)',
+    marginTop: theme.spacing(1),
+    '& .MuiListItemIcon-root': {
+      minWidth: 36,
+      color: theme.palette.text.secondary
+    },
+    '& .MuiMenuItem-root': {
+      padding: theme.spacing(1.5, 2),
+      '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+        '& .MuiListItemIcon-root': {
+          color: theme.palette.primary.main
+        }
+      }
+    }
+  },
+  menuHeader: {
+    padding: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    marginBottom: theme.spacing(1)
+  },
+  avatarLarge: {
+    width: 60,
+    height: 60,
+    marginBottom: theme.spacing(1)
+  },
+  usernameText: {
+    fontWeight: 600,
+    color: theme.palette.text.primary
+  },
+  emailText: {
+    color: theme.palette.text.secondary,
+    fontSize: '0.8rem'
+  },
+  logoutItem: {
+    color: theme.palette.error.main,
+    '& .MuiListItemIcon-root': {
+      color: theme.palette.error.main
+    }
+  }
+}));
+
 const Header = () => {
+  const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [firstName, setFirstName] = useState('Admin'); // Default to Admin
-  const token = localStorage.getItem('token');
+  const [username, setUsername] = useState('User');
+  const [userEmail, setUserEmail] = useState('');
+  const [loginType, setLoginType] = useState('');
   const navigate = useNavigate();
 
-  // Handle profile icon click
+  // Track menu open state separately
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleLoginUpdate = (event) => {
+      const { username: newUsername, email } = event.detail;
+      
+      if (email === 'admin@gmail.com') {
+        setUsername('Admin');
+        setUserEmail(email);
+        setLoginType('admin');
+      } 
+      else if (newUsername) {
+        setUsername(newUsername);
+        setUserEmail(email || '');
+        setLoginType('user');
+      } 
+      else {
+        setUsername('User');
+        setUserEmail('');
+        setLoginType('');
+      }
+    };
+
+    window.addEventListener('loginUpdate', handleLoginUpdate);
+
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedUsername = localStorage.getItem('username');
+
+    if (storedEmail === 'admin@gmail.com') {
+      setUsername('Admin');
+      setUserEmail(storedEmail);
+      setLoginType('admin');
+    } else if (storedUsername) {
+      setUsername(storedUsername);
+      setUserEmail(storedEmail || '');
+      setLoginType('user');
+    }
+
+    return () => {
+      window.removeEventListener('loginUpdate', handleLoginUpdate);
+    };
+  }, []);
+
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
+    setIsMenuOpen(true);
   };
 
-  // Handle menu close
   const handleClose = () => {
     setAnchorEl(null);
+    setIsMenuOpen(false);
   };
 
-  // Handle "Edit Profile" click
-  const handleEditProfile = () => {
-    handleClose();
-    navigate('/edit-profile'); // Navigate to the edit profile page
-  };
-
-  // Handle "Logout" click
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userId');
-    setFirstName('Admin'); // Reset to default
+    
+    // Force state update before closing menu
+    setUsername('User');
+    setUserEmail('');
+    setLoginType('');
+    
+    window.dispatchEvent(new CustomEvent('loginUpdate', {
+      detail: { username: 'User', email: '' }
+    }));
+    
     handleClose();
-    navigate('/login'); // Navigate to the login page
+    navigate('/login');
   };
 
   return (
@@ -48,7 +162,6 @@ const Header = () => {
         </Box>
 
         <Box className="logo-section">
-          {/* Wrap the logo in a Link component */}
           <Link to="/" style={{ textDecoration: 'none' }}>
             <img
               src="https://intercambioeviagem.com.br/wp-content/uploads/2016/08/TravelMate-Logo.png"
@@ -63,64 +176,109 @@ const Header = () => {
             <SearchIcon />
           </IconButton>
 
-          {/* User Profile Section */}
-          {token ? (
-            <>
-              <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
-                Hi, {localStorage.getItem('username') || firstName}
-              </Typography>
-              <IconButton color="inherit" onClick={handleProfileClick}>
-                <Avatar
-                  src="https://www.w3schools.com/howto/img_avatar.png"
-                  alt="User Avatar"
-                  style={{ width: 40, height: 40 }}
-                />
-              </IconButton>
-            </>
-          ) : (
-            <>
-              <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
-                Hi, User
-              </Typography>
-              <IconButton color="inherit" onClick={handleProfileClick}>
-                <Avatar
-                  src="https://www.w3schools.com/howto/img_avatar.png"
-                  alt="Guest Avatar"
-                  style={{ width: 40, height: 40 }}
-                />
-              </IconButton>
-            </>
-          )}
+          <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
+            Hi, {username}
+          </Typography>
+          <IconButton color="inherit" onClick={handleProfileClick}>
+            <Avatar
+              src="https://www.w3schools.com/howto/img_avatar.png"
+              alt="User Avatar"
+              style={{ width: 40, height: 40 }}
+            />
+          </IconButton>
 
-          {/* Profile Dropdown Menu */}
-          <Menu
-            anchorEl={anchorEl}
-            keepMounted
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: 'bottom', // Anchor at the bottom of the icon
-              horizontal: 'right', // Align to the right of the icon
-            }}
-            transformOrigin={{
-              vertical: 'top', // Start the menu from the top
-              horizontal: 'right', // Align to the right
-            }}
-            getContentAnchorEl={null} // Prevents Material-UI from overriding the anchor position
-          >
-            {token ? (
-              <>
-                <MenuItem onClick={handleEditProfile}>Edit Profile</MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </>
-            ) : (
-              <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
-            )}
-          </Menu>
+          {isMenuOpen && (
+            <Menu
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              getContentAnchorEl={null}
+              PaperProps={{
+                className: classes.menuPaper
+              }}
+              elevation={3}
+            >
+              <Box className={classes.menuHeader}>
+                <Avatar 
+                  src="https://www.w3schools.com/howto/img_avatar.png" 
+                  className={classes.avatarLarge}
+                />
+                <Typography variant="subtitle1" className={classes.usernameText}>
+                  {username}
+                </Typography>
+                {userEmail && (
+                  <Typography variant="body2" className={classes.emailText}>
+                    {userEmail}
+                  </Typography>
+                )}
+              </Box>
+
+              {loginType === 'admin' && (
+                <>
+                  <MenuItem onClick={() => { navigate('/dashboard'); handleClose(); }}>
+                    <ListItemIcon>
+                      <Settings fontSize="small" />
+                    </ListItemIcon>
+                    Admin Dashboard
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleLogout} className={classes.logoutItem}>
+                    <ListItemIcon>
+                      <ExitToApp fontSize="small" />
+                    </ListItemIcon>
+                    Logout Admin
+                  </MenuItem>
+                </>
+              )}
+
+              {loginType === 'user' && (
+                <>
+                  <MenuItem onClick={() => { navigate('/profile'); handleClose(); }}>
+                    <ListItemIcon>
+                      <Person fontSize="small" />
+                    </ListItemIcon>
+                    View Profile
+                  </MenuItem>
+                  <MenuItem onClick={() => { navigate('/edit-profile'); handleClose(); }}>
+                    <ListItemIcon>
+                      <Edit fontSize="small" />
+                    </ListItemIcon>
+                    Edit Profile
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleLogout} className={classes.logoutItem}>
+                    <ListItemIcon>
+                      <ExitToApp fontSize="small" />
+                    </ListItemIcon>
+                    Logout
+                  </MenuItem>
+                </>
+              )}
+
+              {loginType === '' && (
+                <MenuItem onClick={() => { navigate('/login'); handleClose(); }}>
+                  <ListItemIcon>
+                    <AccountCircle fontSize="small" />
+                  </ListItemIcon>
+                  Login
+                </MenuItem>
+              )}
+            </Menu>
+          )}
         </Box>
       </Box>
     </Box>
   );
 };
+
 
 export default Header;

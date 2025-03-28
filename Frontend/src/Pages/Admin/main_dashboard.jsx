@@ -80,7 +80,7 @@ const MainDashboard = () => {
     {
       title: 'User Management',
       illustration: 'https://img.freepik.com/free-photo/happy-young-woman-sitting-rock-with-holding-binoculars_23-2147842487.jpg?uid=R70363395&ga=GA1.1.265447444.1742467879', // Replace with your image URL
-      path: '/view-hotels',
+      path: '/users',
     },
     {
       title: 'Hotel Management',

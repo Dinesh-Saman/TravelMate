@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   TextField, Button, MenuItem, FormControl, Select, InputLabel, Box,
   Typography, FormHelperText, Grid, RadioGroup, FormControlLabel, Radio,
-  IconButton, Chip, List, ListItem, Paper, Divider, Link
+  IconButton, Chip, List, ListItem, Paper, Divider, Link, Avatar
 } from '@material-ui/core';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import DeleteIcon from '@material-ui/icons/Delete';
 import axios from 'axios';
 import swal from 'sweetalert';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +20,8 @@ const EditProfile = () => {
   const [gender, setGender] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
+  const [profilePicturePreview, setProfilePicturePreview] = useState('');
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
   const navigate = useNavigate();
@@ -40,6 +44,12 @@ const EditProfile = () => {
         setAddress(userData.address);
         setDob(userData.dob.split('T')[0]); // Format date to YYYY-MM-DD
         setGender(userData.gender);
+        
+        // Set profile picture if it exists
+        if (userData.profile_picture) {
+          setProfilePicture(userData.profile_picture);
+          setProfilePicturePreview(userData.profile_picture);
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
         swal('Error', 'Failed to fetch user data. Please try again.', 'error');
@@ -101,6 +111,45 @@ const EditProfile = () => {
     setErrors(prevErrors => ({ ...prevErrors, dob: '' }));
   };
 
+  // Handle profile picture upload
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!validTypes.includes(file.type)) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        profilePicture: "Only JPG, JPEG, and PNG files are allowed"
+      }));
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        profilePicture: "File size must be less than 2MB"
+      }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfilePicturePreview(reader.result);
+      setProfilePicture(reader.result); // Store base64 string
+    };
+    reader.readAsDataURL(file);
+    setErrors(prevErrors => ({ ...prevErrors, profilePicture: '' }));
+  };
+
+  // Remove profile picture
+  const handleRemoveProfilePicture = () => {
+    setProfilePicture('');
+    setProfilePicturePreview('');
+  };
+
   // Validate form fields
   const validateForm = () => {
     const newErrors = {};
@@ -134,6 +183,7 @@ const EditProfile = () => {
       dob,
       gender,
       password: password || undefined, // Only include password if it's provided
+      profile_picture: profilePicture // Include the profile picture
     };
 
     try {
@@ -143,7 +193,6 @@ const EditProfile = () => {
       });
 
       swal('Success', 'Profile updated successfully!', 'success');
-      navigate('/'); // Redirect to dashboard after update
     } catch (error) {
       console.error('Error updating profile:', error);
       swal('Error', 'Failed to update profile. Please try again.', 'error');
@@ -189,6 +238,80 @@ const EditProfile = () => {
         >
           Edit Profile
         </Typography>
+
+        {/* Profile Picture Section - Added at the top */}
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          mb={4}
+        >
+          <Typography variant="subtitle1" gutterBottom>
+            Profile Picture
+          </Typography>
+          
+          {/* Profile Picture Preview */}
+          <Box mb={2}>
+            <Avatar
+              src={profilePicturePreview}
+              style={{
+                width: 150,
+                height: 150,
+                border: '2px solid #e0e0e0',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              alt={fullName || "Profile"}
+            />
+          </Box>
+          
+          {/* Upload and Remove Buttons */}
+          <Box display="flex" alignItems="center">
+            <input
+              accept="image/*"
+              style={{ display: 'none' }}
+              id="profile-picture-upload"
+              type="file"
+              onChange={handleProfilePictureChange}
+            />
+            <label htmlFor="profile-picture-upload">
+              <Button
+                variant="contained"
+                color="primary"
+                component="span"
+                startIcon={<CloudUploadIcon />}
+                size="small"
+                style={{ marginRight: 8 }}
+              >
+                Upload
+              </Button>
+            </label>
+            
+            {profilePicturePreview && (
+              <IconButton
+                color="secondary"
+                onClick={handleRemoveProfilePicture}
+                size="small"
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </Box>
+          
+          {/* Error Message */}
+          {errors.profilePicture && (
+            <Typography
+              variant="caption"
+              color="error"
+              style={{ marginTop: 8 }}
+            >
+              {errors.profilePicture}
+            </Typography>
+          )}
+          
+          <Typography variant="caption" style={{ marginTop: 8, color: '#666' }}>
+            Recommended: Square image, JPG or PNG, max 2MB
+          </Typography>
+        </Box>
 
         {/* Form Section */}
         <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -270,6 +393,34 @@ const EditProfile = () => {
             </RadioGroup>
             <FormHelperText>{errors.gender}</FormHelperText>
           </FormControl>
+
+          {/* Optional Password Fields */}
+          <Typography variant="subtitle1" style={{ marginTop: 16 }}>
+            Change Password (Optional)
+          </Typography>
+
+          <TextField
+            fullWidth
+            margin="normal"
+            label="New Password"
+            type="password"
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            helperText="Leave blank to keep current password"
+          />
+
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Confirm New Password"
+            type="password"
+            variant="outlined"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            helperText={errors.confirmPassword}
+            error={!!errors.confirmPassword}
+          />
 
           <Button
             fullWidth

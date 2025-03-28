@@ -2,8 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
-  FaTachometerAlt, FaHotel, FaPlusCircle, 
-  FaFileAlt, FaChartLine, FaSignOutAlt, FaHome 
+  FaTachometerAlt, FaUser, FaUserPlus, 
+  FaFileAlt, FaUsers, FaSignOutAlt, FaHome,
+  FaUserCog, FaUserEdit, FaUserTimes, FaUserCheck
 } from 'react-icons/fa';
 import Logo from '../Images/logo.png';
 
@@ -30,7 +31,6 @@ const SidebarContainer = styled.div`
     z-index: 0;
   }
 `;
-
 
 const LogoContainer = styled.div`
   display: flex;
@@ -80,14 +80,14 @@ const SignOutContainer = styled.div`
   z-index: 1;
 `;
 
-const Sidebar = () => {
+const UserSidebar = () => {
   return (
     <SidebarContainer>
       <LogoContainer>
         <LogoImage style={{ width: '180px' }} />
       </LogoContainer>
       <Menu>
-      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
             <Icon><FaHome /></Icon>
             Home
@@ -99,28 +99,27 @@ const Sidebar = () => {
             Dashboard
           </MenuItem>
         </Link>
-        <Link to="/view-destination" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/users" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
-            <Icon><FaHotel /></Icon>
-            View Destination
+            <Icon><FaUsers /></Icon>
+            View Users
           </MenuItem>
         </Link>
-        <Link to="/add-destination" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/add-user" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
-            <Icon><FaPlusCircle /></Icon>
-            Add Destination
+            <Icon><FaUserPlus /></Icon>
+            Add User
           </MenuItem>
         </Link>
-        <Link to="/destination-report" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/user-report" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
             <Icon><FaFileAlt /></Icon>
-            Destination Report
+            User Report
           </MenuItem>
         </Link>
-
       </Menu>
       <SignOutContainer>
-        <Link to="/main-dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/logout" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
             <Icon><FaSignOutAlt /></Icon>
             Sign Out
@@ -131,4 +130,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default UserSidebar;

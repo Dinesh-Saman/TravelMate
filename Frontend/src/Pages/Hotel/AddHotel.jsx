@@ -358,7 +358,7 @@ const StarRatingComponent = () => {
 
   return (
     <Box>
-      <Box display="flex">
+      <Box display="flex" style={{ backgroundColor: '#f5f5f5'}}>
         <Sidebar />
         <Box
           flexDirection="column"

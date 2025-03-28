@@ -18,6 +18,10 @@ import UpdateDestination from './Pages/Destination/UpdateDestination';
 import UserDetailsView from './Pages/User/ViewUser';
 import EditProfile from './Pages/User/EditProfile';
 import Home  from './Pages/Home/Home';
+import ViewUsers from './Pages/User/ViewUser';
+import AddUser from './Pages/User/AddUser';
+import UserReportPage from './Pages/User/UserReport';
+import HotelReservationPage from './Pages/Hotel/ReserveHotel';
 
 function App() {
   return (
@@ -33,12 +37,16 @@ function App() {
           <Route path="/reset-password/:token" element={<ResetPassword/>} />
           <Route path="/view-user" element={<UserDetailsView/>} />
           <Route path="/edit-profile" element={<EditProfile/>} />
+          <Route path="/users" element={<ViewUsers/>} />
+          <Route path="/add-user" element={<AddUser/>} />
+          <Route path="/user-report" element={<UserReportPage/>} />
 
-          <Route path="/hotel-management" element={<MainDashboard/>} />
+          <Route path="/dashboard" element={<MainDashboard/>} />
           <Route path="/add-hotel" element={<AddHotel/>} />
           <Route path="/view-hotels" element={<ViewHotels/>} />
           <Route path="/update-hotel/:id" element={<UpdateHotel/>} />
           <Route path="/hotel-report" element={<HotelReportPage/>} />
+          <Route path="/reserve-hotel/:id" element={<HotelReservationPage/>} />
 
           <Route path="/add-destination" element={<AddDestination/>} />
           <Route path="/view-destination" element={<ViewDestinations/>} />

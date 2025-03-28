@@ -93,7 +93,7 @@ const Sidebar = () => {
             Home
           </MenuItem>
         </Link>
-        <Link to="/hotel-management" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
           <MenuItem>
             <Icon><FaTachometerAlt /></Icon>
             Dashboard

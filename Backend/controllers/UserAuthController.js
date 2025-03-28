@@ -8,15 +8,14 @@ class UserAuthController {
   // User registration
   async registerUser(req, res) {
     try {
-      const { user_id, full_name, email, contact, address, dob, gender, password } = req.body;
+      const { user_id, full_name, email, contact, address, dob, gender, password, profile_picture } = req.body;
 
-      // Check if user already exists with the same email
+      // Check if user already exists
       const existingUserEmail = await User.findOne({ email });
       if (existingUserEmail) {
         return res.status(409).json({ message: "This email is already registered" });
       }
 
-      // Check if user already exists with the same contact
       const existingUserContact = await User.findOne({ contact });
       if (existingUserContact) {
         return res.status(409).json({ message: "This contact number is already registered" });
@@ -26,7 +25,7 @@ class UserAuthController {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      // Create new user
+      // Create new user with profile_picture
       const newUser = new User({
         user_id,
         full_name,
@@ -35,13 +34,21 @@ class UserAuthController {
         address,
         dob,
         gender,
+        profile_picture: profile_picture || '',
         password: hashedPassword,
-        reset_token: null,
-        reset_token_expiry: null,
       });
 
       await newUser.save();
-      res.status(201).json({ message: "User registered successfully" });
+      res.status(201).json({ 
+        message: "User registered successfully",
+        user: {
+          id: newUser._id,
+          user_id: newUser.user_id,
+          full_name: newUser.full_name,
+          email: newUser.email,
+          profile_picture: newUser.profile_picture
+        }
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Server error", error: error.message });
@@ -241,27 +248,36 @@ class UserAuthController {
     }
   }
 
-  // Add this method to the UserAuthController class
+  // Get user profile (updated to handle profile_picture)
   async getUserProfile(req, res) {
     try {
-      // Extract the token from the Authorization header
-      const token = req.headers.authorization?.split(' ')[1]; // Format: "Bearer <token>"
+      const token = req.headers.authorization?.split(' ')[1];
       if (!token) {
         return res.status(401).json({ message: "No token provided" });
       }
 
-      // Verify the token and extract the user ID
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-      const userId = decoded.id;
-
-      // Find the user by ID
-      const user = await User.findById(userId).select('-password -reset_token -reset_token_expiry'); // Exclude sensitive fields
+      const user = await User.findById(decoded.id).select('-password -reset_token -reset_token_expiry');
+      
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Return the user details
-      res.status(200).json({ user });
+      res.status(200).json({ 
+        user: {
+          id: user._id,
+          user_id: user.user_id,
+          full_name: user.full_name,
+          email: user.email,
+          contact: user.contact,
+          address: user.address,
+          dob: user.dob,
+          gender: user.gender,
+          profile_picture: user.profile_picture,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        }
+      });
     } catch (error) {
       console.error(error);
       if (error.name === 'JsonWebTokenError') {
@@ -271,86 +287,57 @@ class UserAuthController {
     }
   }
 
-  // Add this method to the UserAuthController class
-async updateProfile(req, res) {
-  try {
-    // Extract the token from the Authorization header
-    const token = req.headers.authorization?.split(' ')[1]; // Format: "Bearer <token>"
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    // Verify the token and extract the user ID
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-    const userId = decoded.id;
-
-    // Extract the update data from the request body
-    const { full_name, email, contact, address, dob, gender, password } = req.body;
-
-    // Find the user by ID
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Validate email (if provided)
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: "Invalid email format" });
+  // Update profile (updated to handle profile_picture)
+  async updateProfile(req, res) {
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ message: "No token provided" });
       }
 
-      // Check if the new email is already registered by another user
-      const existingUserEmail = await User.findOne({ email, _id: { $ne: userId } });
-      if (existingUserEmail) {
-        return res.status(409).json({ message: "This email is already registered" });
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+      const { full_name, email, contact, address, dob, gender, profile_picture, password } = req.body;
+
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
 
-      user.email = email;
-    }
-
-    // Validate contact (if provided)
-    if (contact) {
-      const contactRegex = /^\d{10}$/;
-      if (!contactRegex.test(contact)) {
-        return res.status(400).json({ message: "Contact number must be 10 digits" });
+      // Update profile picture if provided
+      if (profile_picture !== undefined) {
+        user.profile_picture = profile_picture;
       }
 
-      // Check if the new contact is already registered by another user
-      const existingUserContact = await User.findOne({ contact, _id: { $ne: userId } });
-      if (existingUserContact) {
-        return res.status(409).json({ message: "This contact number is already registered" });
+      // Update other fields if provided
+      if (full_name) user.full_name = full_name;
+      if (email) {
+        const existingUser = await User.findOne({ email, _id: { $ne: decoded.id } });
+        if (existingUser) {
+          return res.status(409).json({ message: "Email already in use" });
+        }
+        user.email = email;
+      }
+      if (contact) user.contact = contact;
+      if (address) user.address = address;
+      if (dob) user.dob = dob;
+      if (gender) user.gender = gender;
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
       }
 
-      user.contact = contact;
+      await user.save();
+
+      const updatedUser = await User.findById(decoded.id).select('-password -reset_token -reset_token_expiry');
+      res.status(200).json({ 
+        message: "Profile updated successfully", 
+        user: updatedUser 
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error", error: error.message });
     }
-
-    // Update other fields (if provided)
-    if (full_name) user.full_name = full_name;
-    if (address) user.address = address;
-    if (dob) user.dob = dob;
-    if (gender) user.gender = gender;
-
-    // Update password (if provided)
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-    }
-
-    // Save the updated user
-    await user.save();
-
-    // Return the updated user details (excluding sensitive fields)
-    const updatedUser = await User.findById(userId).select('-password -reset_token -reset_token_expiry');
-    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
-  } catch (error) {
-    console.error(error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-    res.status(500).json({ message: "Server error", error: error.message });
   }
-}
 }
 
 module.exports = new UserAuthController();
