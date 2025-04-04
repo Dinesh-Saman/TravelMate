@@ -22,6 +22,13 @@ import ViewUsers from './Pages/User/ViewUser';
 import AddUser from './Pages/User/AddUser';
 import UserReportPage from './Pages/User/UserReport';
 import HotelReservationPage from './Pages/Hotel/ReserveHotel';
+import Bill from './Pages/Tourpackage/customer/Bill';
+import FrontPage from './Pages/Tourpackage/customer/FrontPage';
+import DisplayPackage from './Pages/Tourpackage/customer/DisplayPackage';
+import AdminHome from './Pages/Tourpackage/admin/AdminHome';
+import PackageDetails from './Pages/Tourpackage/customer/PackageDetails';
+import TravelManagement from './Pages/Tourpackage/admin/TravelManagement';
+import AdminBookings from './Pages/Tourpackage/admin/AdminBookings';
 
 function App() {
   return (
@@ -53,6 +60,15 @@ function App() {
           <Route path="/update-destination/:id" element={<UpdateDestination/>} />
           <Route path="/hotel-report" element={<HotelReportPage/>} />
           <Route path="/destination-report" element={<DestinationReportPage/>} />
+
+          {/* Tourpackage Routes */}
+          <Route path="/bill" element={<Bill/>} />
+          <Route path="/firstpage" element={<FrontPage />} />
+          <Route path="/packages" element={<DisplayPackage />} />
+          <Route path="/AdminHome" element={<AdminHome />} />
+          <Route path="/packagedetails" element={<PackageDetails />} />
+          <Route path="/admin/travel" element={<TravelManagement />} />
+          <Route path="/admin/bookings" element={<AdminBookings/>} />
 
         </Routes>
         <Footer></Footer>

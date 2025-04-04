@@ -5,7 +5,7 @@ const userSchema = new Schema({
   user_id: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, // Ensure user_id is unique
   },
   full_name: {
     type: String,
@@ -14,12 +14,12 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, // Ensure email is unique
   },
   contact: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, // Assuming contact numbers are unique
   },
   address: {
     type: String,
@@ -32,11 +32,7 @@ const userSchema = new Schema({
   gender: {
     type: String,
     required: true,
-    enum: ['Male', 'Female'],
-  },
-  profile_picture: {
-    type: String,
-    default: ''
+    enum: ['Male', 'Female'], // Restricted to Male & Female only
   },
   password: {
     type: String,
@@ -54,8 +50,9 @@ const userSchema = new Schema({
     type: Date,
     default: null,
   }
-}, { timestamps: true });
+}, { timestamps: true }); // Adds createdAt and updatedAt timestamps
 
+// Add index for faster lookup by reset token
 userSchema.index({ reset_token: 1 });
 
 module.exports = mongoose.model('User', userSchema);

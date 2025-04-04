@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { Hotel, Star } from '@material-ui/icons';
+import { ExploreOutlined, AccessTime } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(2, 'auto', 0),
     }
   },
-  hotelCard: {
+  packageCard: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -45,13 +45,15 @@ const useStyles = makeStyles((theme) => ({
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   },
-  starIcon: {
-    color: '#FFD700',
-    marginRight: '4px',
-  },
-  reserveButton: {
+  bookButton: {
     marginTop: 'auto',
     width: '100%',
+  },
+  price: {
+    fontWeight: 'bold',
+    color: theme.palette.secondary.main,
+    fontSize: '1.2rem',
+    marginTop: theme.spacing(1),
   },
   viewMoreButton: {
     marginTop: theme.spacing(3),
@@ -77,46 +79,30 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const RecentHotels = () => {
+const RecentPackages = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const [hotels, setHotels] = useState([]);
+  const [packages, setPackages] = useState([]);
 
   useEffect(() => {
-    const fetchRecentHotels = async () => {
+    const fetchRecentPackages = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/hotel/get-hotels');
-        // Sort hotels by creation date and take the first 4
-        const sortedHotels = response.data.hotels
+        const response = await axios.get('http://localhost:3001/api/package');
+        // Sort packages by creation date and take the first 4
+        const sortedPackages = response.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           .slice(0, 4);
-        setHotels(sortedHotels);
+        setPackages(sortedPackages);
       } catch (error) {
-        console.error('Error fetching hotels:', error);
+        console.error('Error fetching packages:', error);
       }
     };
 
-    fetchRecentHotels();
+    fetchRecentPackages();
   }, []);
 
-  const handleReserveHotel = (hotelId) => {
-    // Check if user is logged in
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      // Navigate to hotel reservation page
-      navigate(`/reserve-hotel/${hotelId}`);
-    } else {
-      // Navigate to login page
-      navigate('/login', { 
-        state: { 
-          redirectTo: `/reserve-hotel/${hotelId}` 
-        } 
-      });
-    }
-  };
-
-  const handleViewMoreHotels = () => {
-    navigate('/reserve-hotels');
+  const handleViewMorePackages = () => {
+    navigate('/packages');
   };
 
   return (
@@ -128,7 +114,7 @@ const RecentHotels = () => {
           className={classes.sectionTitle}
           style={{ fontWeight: 'bold' }}
         >
-          Reserve Hotels
+          Explore Packages
         </Typography>
         <Typography 
           variant="h6" 
@@ -137,54 +123,40 @@ const RecentHotels = () => {
           paragraph
           style={{ maxWidth: '800px', margin: '0 auto 40px' }}
         >
-          Discover our latest hotel additions and find your perfect stay
+          Discover our featured travel packages and plan your next adventure
         </Typography>
         
         <Grid container spacing={4}>
-          {hotels.map((hotel) => (
-            <Grid item xs={12} sm={6} md={3} key={hotel._id}>
-              <Card className={classes.hotelCard} elevation={3}>
+          {packages.map((pkg) => (
+            <Grid item xs={12} sm={6} md={3} key={pkg._id}>
+              <Card className={classes.packageCard} elevation={3}>
                 <CardMedia
                   className={classes.cardMedia}
-                  image={hotel.hotel_image.startsWith('http') 
-                    ? hotel.hotel_image 
-                    : `http://localhost:3001${hotel.hotel_image}`
+                  image={pkg.image.startsWith('http') 
+                    ? pkg.image 
+                    : `http://localhost:3001${pkg.image}`
                   }
-                  title={hotel.hotel_name}
+                  title={pkg.name}
                 />
                 <CardContent>
                   <Box display="flex" alignItems="center" mb={1}>
-                    <Hotel style={{ marginRight: '8px', color: '#1976d2' }} />
+                    <ExploreOutlined style={{ marginRight: '8px', color: '#1976d2' }} />
                     <Typography variant="h6" style={{ fontWeight: 'bold' }}>
-                      {hotel.hotel_name}
+                      {pkg.name}
                     </Typography>
                   </Box>
                   <Box display="flex" alignItems="center" mb={2}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={classes.starIcon}
-                        style={{ 
-                          color: i < hotel.star_rating ? '#FFD700' : '#E0E0E0',
-                          fontSize: '1.2rem'
-                        }} 
-                      />
-                    ))}
-                    <Typography variant="body2" color="textSecondary" style={{ marginLeft: '8px' }}>
-                      {hotel.star_rating} Stars
+                    <AccessTime style={{ marginRight: '8px', color: '#757575' }} />
+                    <Typography variant="body2" color="textSecondary">
+                      {pkg.duration}
                     </Typography>
                   </Box>
                   <Typography variant="body2" color="textSecondary" paragraph>
-                    {hotel.city}, {hotel.address.substring(0, 50)}...
+                    {pkg.location}
                   </Typography>
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    className={classes.reserveButton}
-                    onClick={() => handleReserveHotel(hotel._id)}
-                  >
-                    Reserve Now
-                  </Button>
+                  <Typography className={classes.price}>
+                    ${pkg.price.toLocaleString()}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -196,10 +168,10 @@ const RecentHotels = () => {
             variant="outlined" 
             color="primary" 
             size="large"
-            onClick={handleViewMoreHotels}
+            onClick={handleViewMorePackages}
             className={classes.viewMoreButton}
           >
-            View More Hotels
+            View More Packages
           </Button>
         </Box>
       </Container>
@@ -207,4 +179,4 @@ const RecentHotels = () => {
   );
 };
 
-export default RecentHotels;
+export default RecentPackages;

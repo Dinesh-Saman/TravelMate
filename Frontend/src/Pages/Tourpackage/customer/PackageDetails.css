@@ -1,0 +1,131 @@
+/* PackageDetails.css */
+
+.package-details-container {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1000px;
+  margin: 20px auto;
+  gap: 20px;
+  background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pexels.com%2Fsearch%2Ftravel%2F&psig=AOvVaw24K46XJxWvbszTfAirNPhQ&ust=1743147783261000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCLisudXhqYwDFQAAAAAdAAAAABAR');
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.package-details-package-card {
+  flex: 1;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.package-details-package-card:hover {
+  transform: translateY(-5px);
+}
+
+.package-details-booking-form {
+  width: 300px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  margin-left: auto;
+}
+
+.package-details-container h1 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.package-details-detail-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.package-details-container p {
+  font-size: 16px;
+  margin: 5px 0;
+  color: #555;
+}
+
+.package-details-container strong {
+  color: #333;
+}
+
+.package-details-back-button, 
+.package-details-submit-button {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.package-details-back-button:hover, 
+.package-details-submit-button:hover {
+  background-color: #388E3C;
+  transform: scale(1.05);
+}
+
+.package-details-booking-form h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #2980b9;
+  text-align: center;
+}
+
+.package-details-booking-form div {
+  margin-bottom: 15px;
+}
+
+.package-details-booking-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.package-details-booking-form input,
+.package-details-booking-form textarea {
+  width: 90%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border-color 0.3s;
+}
+
+.package-details-booking-form input:focus,
+.package-details-booking-form textarea:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.package-details-tour-guide-selection {
+  margin: 15px 0;
+}
+
+.package-details-radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.package-details-radio-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.package-details-radio-group input {
+  margin-right: 10px;
+}

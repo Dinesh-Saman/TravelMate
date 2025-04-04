@@ -1,0 +1,202 @@
+/* AdminBookings.css */
+
+/* Wrapper to ensure footer stays at the bottom */
+.admin-bookings-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Container for the main content */
+.admin-bookings-container {
+    flex: 1;
+    padding: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Header Styling */
+.admin-bookings-container h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.5em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Search Form Styling */
+.admin-bookings-container form {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-bookings-container input {
+    margin-right: 10px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 300px;
+}
+
+.admin-bookings-container button[type="submit"] {
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.admin-bookings-container button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Table Styling */
+.admin-bookings-container table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+.admin-bookings-container th,
+.admin-bookings-container td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.admin-bookings-container th {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1em;
+    text-transform: uppercase;
+}
+
+.admin-bookings-container tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.admin-bookings-container tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Button Styling */
+.admin-bookings-container button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.3s ease;
+    margin: 2px;
+}
+
+/* Action Buttons */
+.admin-bookings-edit-button {
+    background-color: #3498db;
+    color: white;
+}
+
+.admin-bookings-edit-button:hover {
+    background-color: #2980b9;
+}
+
+.admin-bookings-delete-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.admin-bookings-delete-button:hover {
+    background-color: #c0392b;
+}
+
+/* Navigation Buttons */
+.admin-bookings-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    background-color: #3d3e3f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.admin-bookings-back-button:hover {
+    background-color: #acb0b4;
+}
+
+.admin-bookings-download-pdf-button {
+    margin: 10px 0;
+    padding: 10px 20px;
+    background-color: #ce940d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.admin-bookings-download-pdf-button:hover {
+    background-color: #f5c401;
+}
+
+/* Footer Styling */
+.admin-bookings-footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.8em;
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-top: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-bookings-container table,
+    .admin-bookings-container th,
+    .admin-bookings-container td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-bookings-container th {
+        display: none;
+    }
+
+    .admin-bookings-container td {
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+    }
+
+    .admin-bookings-container td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .admin-bookings-container tr {
+        margin-bottom: 10px;
+        display: block;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .admin-bookings-back-button {
+        position: static;
+        margin-bottom: 15px;
+    }
+}

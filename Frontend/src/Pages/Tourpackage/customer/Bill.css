@@ -1,0 +1,168 @@
+/* Bill.css */
+
+/* Container for the entire bill page */
+.bill-container {
+  margin: 40px auto;
+  padding: 20px;
+  max-width: 600px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+  position: relative;
+}
+
+/* Title for the bill */
+.bill-container h1 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Frame around the bill details */
+.bill-details {
+  padding: 15px;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Edit section styling */
+.bill-edit-section {
+  margin-bottom: 20px;
+}
+
+.bill-edit-section h2 {
+  font-size: 20px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Form group styling */
+.bill-form-group {
+  margin-bottom: 15px;
+}
+
+.bill-form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Input fields styling */
+.bill-input {
+  width: calc(100% - 12px);
+  padding: 8px;
+  margin: 6px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.bill-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Details display styling */
+.bill-details-display {
+  margin-bottom: 20px;
+}
+
+.bill-details-display p {
+  font-size: 16px;
+  margin: 8px 0;
+  color: #666;
+}
+
+/* Button styling */
+.bill-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-right: 10px;
+}
+
+.bill-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.bill-button:focus {
+  outline: 2px solid #0056b3;
+}
+
+/* Specific button styles */
+.bill-back-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  float: left;
+}
+
+.bill-back-button:hover {
+  background-color: #5a6268;
+}
+
+.bill-edit-button {
+  background-color: #1a10d8;
+  color: white;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.bill-edit-button:hover {
+  background-color: #00a8e0;
+}
+
+.bill-pay-button {
+  background-color: #28a745;
+  position: absolute;
+  bottom: 65px;
+  right: 20px;
+}
+
+.bill-pay-button:hover {
+  background-color: #218838;
+}
+
+.bill-delete-button {
+  background-color: #dc3545;
+}
+
+.bill-delete-button:hover {
+  background-color: #c82333;
+}
+
+/* Button group styling */
+.bill-button-group {
+  margin-top: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .bill-container {
+      padding: 15px;
+  }
+
+  .bill-button {
+      width: 100%;
+      margin: 5px 0;
+  }
+}

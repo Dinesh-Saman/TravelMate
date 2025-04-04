@@ -1,0 +1,126 @@
+/* FrontPage.css */
+
+/* General body styling */
+.front-body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+}
+
+/* Section styling */
+.front-section {
+    text-align: center;
+    color: white;
+    padding: 50px 0;
+}
+
+/* Image within section */
+.front-section img {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: cover;
+}
+
+/* About Us section */
+.front-about-us {
+    position: relative;
+    background: url('https://youmatter.world/app/uploads/2019/11/travel-world.jpg') no-repeat center center/cover;
+    padding: 100px 0;
+}
+
+.front-about-us h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Great Vibes', cursive;
+    font-size: 4em;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin: 0;
+}
+
+/* Promotion section */
+.front-promotion {
+    background-color: white;
+    color: black;
+    padding: 50px 0;
+    border-top: 1px solid #ddd;
+}
+
+.front-promotion h2 {
+    font-size: 1.2em;
+    color: #FF6347;
+    margin: 0;
+}
+
+.front-promotion h1 {
+    font-size: 2.5em;
+    margin: 10px 0;
+    font-weight: 700;
+}
+
+.front-promotion .front-button {
+    background-color: #FF6347;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.front-promotion .front-button:hover {
+    background-color: #e5533e;
+    transform: scale(1.05);
+}
+
+.front-promotion .front-image-container {
+    position: relative;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.front-promotion .front-image-container img {
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.front-promotion .front-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px dashed #FF6347;
+    border-radius: 50%;
+    margin: -10px;
+}
+
+/* Sri Lanka section */
+.front-sri-lanka {
+    position: relative;
+    background: url('https://youmatter.world/app/uploads/2019/11/travel-world.jpg') no-repeat center center/cover;
+    padding: 100px 0;
+}
+
+.front-sri-lanka h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Great Vibes', cursive;
+    font-size: 4em;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin: 0;
+}

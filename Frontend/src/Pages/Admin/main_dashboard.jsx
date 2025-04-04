@@ -95,7 +95,7 @@ const MainDashboard = () => {
     {
       title: 'Tour Package Management',
       illustration: 'https://img.freepik.com/free-photo/beautiful-endangered-american-jaguar-nature-habitat-panthera-onca-wild-brasil-brasilian-wildlife-pantanal-green-jungle-big-cats_475641-2209.jpg?uid=R70363395&ga=GA1.1.265447444.1742467879', // Replace with your image URL
-      path: '/gps-tracking',
+      path: '/admin/travel',
     },
   ];
 

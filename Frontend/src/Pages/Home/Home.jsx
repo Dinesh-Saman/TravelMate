@@ -28,6 +28,8 @@ import {
 import Header from '../../Components/navbar';
 import { makeStyles } from '@material-ui/core/styles';
 import RecentHotels from '../Hotel/RecentHotels'; 
+import RecentPackages from '../Tourpackage/customer/RecentPackages';
+import TrendingDestinations from '../Destination/TrendingDestinations';
 
 const useStyles = makeStyles((theme) => ({
   heroSection: {
@@ -355,6 +357,8 @@ const Home = () => {
       </Box>
 
       <RecentHotels />
+      <TrendingDestinations />
+      <RecentPackages />
 
       {/* About Section */}
       <Box className={classes.section} style={{ backgroundImage: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
