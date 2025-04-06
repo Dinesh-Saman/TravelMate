@@ -117,6 +117,12 @@ const UserSidebar = () => {
             User Report
           </MenuItem>
         </Link>
+        <Link to="/view-reviews" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem>
+            <Icon><FaFileAlt /></Icon>
+            User Reviews
+          </MenuItem>
+        </Link>
       </Menu>
       <SignOutContainer>
         <Link to="/logout" style={{ textDecoration: 'none', color: 'inherit' }}>

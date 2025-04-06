@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, MenuItem, FormControl, Select, InputLabel, Box, Typography, FormHelperText, Chip, IconButton, CircularProgress } from '@material-ui/core';
+import { TextField, Button, Box, Typography, FormHelperText, Chip, IconButton, Paper, CircularProgress } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
+import WbSunnyIcon from '@material-ui/icons/WbSunny';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+import Brightness5Icon from '@material-ui/icons/Brightness5';
+import Brightness6Icon from '@material-ui/icons/Brightness6';
+import Brightness7Icon from '@material-ui/icons/Brightness7';
+import EcoIcon from '@material-ui/icons/Eco'; 
+import Brightness2Icon from '@material-ui/icons/Brightness2'; 
+import AcUnitIcon from '@material-ui/icons/AcUnit';
+import WbCloudyIcon from '@material-ui/icons/WbCloudy';
+import BeachAccessIcon from '@material-ui/icons/BeachAccess';
+import WbSunnyOutlinedIcon from '@material-ui/icons/WbSunnyOutlined';
+import OpacityIcon from '@material-ui/icons/Opacity';
+import TerrainIcon from '@material-ui/icons/Terrain';
 import Sidebar from '../../Components/destination_sidebar';
-import Header from '../../Components/navbar';
 import axios from 'axios';
 import swal from 'sweetalert';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -20,6 +31,7 @@ const UpdateDestination = () => {
   const [destinationImage, setDestinationImage] = useState('');
   const [destinationRating, setDestinationRating] = useState('');
   const [destinationDescription, setDestinationDescription] = useState('');
+  const [destinationContact, setDestinationContact] = useState('');
   const [location, setLocation] = useState('');
   const [popularAttractions, setPopularAttractions] = useState([]);
   const [currentAttraction, setCurrentAttraction] = useState('');
@@ -31,27 +43,30 @@ const UpdateDestination = () => {
   const [currentActivity, setCurrentActivity] = useState('');
   const [climate, setClimate] = useState('');
   const [previewImage, setPreviewImage] = useState('');
+  const [contactTouched, setContactTouched] = useState(false);
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Climate options
+  // Climate options with icons
   const climateOptions = [
-    'Tropical',
-    'Temperate',
-    'Arid (Desert)',
-    'Mediterranean',
-    'Continental',
-    'Polar',
-    'Mountain',
+    { value: 'Tropical', icon: <BeachAccessIcon />, color: '#FFA500' },
+    { value: 'Temperate', icon: <WbCloudyIcon />, color: '#87CEEB' },
+    { value: 'Arid (Desert)', icon: <WbSunnyOutlinedIcon />, color: '#FFD700' },
+    { value: 'Mediterranean', icon: <OpacityIcon />, color: '#4682B4' },
+    { value: 'Continental', icon: <WbSunnyIcon />, color: '#32CD32' },
+    { value: 'Polar', icon: <AcUnitIcon />, color: '#ADD8E6' },
+    { value: 'Mountain', icon: <TerrainIcon />, color: '#8B4513' },
+    { value: 'Rainforest', icon: <EcoIcon />, color: '#228B22' },
   ];
 
-  // Best time to visit options
+  // Best time to visit options with icons
   const timeOptions = [
-    'Early Morning',
-    'Morning',
-    'Afternoon',
-    'Evening',
-    'Night'
+    { value: 'Early Morning', icon: <Brightness5Icon />, color: '#FFB74D' },
+    { value: 'Morning', icon: <WbSunnyIcon />, color: '#FFC107' },
+    { value: 'Afternoon', icon: <Brightness7Icon />, color: '#FF9800' },
+    { value: 'Evening', icon: <Brightness6Icon />, color: '#FB8C00' },
+    { value: 'Sunset', icon: <Brightness2Icon />, color: '#E64A19' },
+    { value: 'Night', icon: <Brightness4Icon />, color: '#455A64' },
   ];
 
   // Fetch destination data
@@ -67,6 +82,7 @@ const UpdateDestination = () => {
         setPreviewImage(destination.destination_image || '');
         setDestinationRating(destination.destination_rating || '');
         setDestinationDescription(destination.destination_description || '');
+        setDestinationContact(destination.destination_contact || '');
         setLocation(destination.location || '');
         setPopularAttractions(destination.popular_attractions || []);
         setBestTimeToVisit(destination.best_time_to_visit || '');
@@ -94,6 +110,7 @@ const UpdateDestination = () => {
       destinationImage,
       destinationRating,
       destinationDescription,
+      destinationContact,
       location,
       bestTimeToVisit,
       travelTips,
@@ -104,12 +121,50 @@ const UpdateDestination = () => {
     const valid = Object.values(requiredFields).every(field => field !== '') && 
                  popularAttractions.length > 0 && 
                  accommodationOptions.length > 0 && 
-                 activities.length > 0;
+                 activities.length > 0 &&
+                 destinationContact.length === 10 &&
+                 /^\d+$/.test(destinationContact);
     
     setIsFormValid(valid);
   }, [destinationId, destinationName, destinationImage, destinationRating, destinationDescription, 
-      location, popularAttractions, bestTimeToVisit, travelTips, accommodationOptions, 
-      activities, climate]);
+      destinationContact, location, popularAttractions, bestTimeToVisit, travelTips, 
+      accommodationOptions, activities, climate]);
+
+  // Handle contact field change
+  const handleContactChange = (event) => {
+    const value = event.target.value;
+    // Only allow digits
+    if (value === '' || /^\d+$/.test(value)) {
+      // Limit to 10 digits
+      if (value.length <= 10) {
+        setDestinationContact(value);
+      }
+    }
+    setContactTouched(true);
+  };
+
+  // Handle contact field blur
+  const handleContactBlur = () => {
+    setContactTouched(true);
+    validateContactField();
+  };
+
+  // Validate contact field
+  const validateContactField = () => {
+    if (destinationContact === '') {
+      setErrors(prevErrors => ({ ...prevErrors, destinationContact: 'Contact number is required' }));
+      return false;
+    } else if (destinationContact.length !== 10) {
+      setErrors(prevErrors => ({ ...prevErrors, destinationContact: 'Contact number must be exactly 10 digits' }));
+      return false;
+    } else if (!/^\d+$/.test(destinationContact)) {
+      setErrors(prevErrors => ({ ...prevErrors, destinationContact: 'Contact number must contain only digits' }));
+      return false;
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, destinationContact: '' }));
+      return true;
+    }
+  };
 
   // Handle image URL input
   const handleImageUrlChange = (event) => {
@@ -164,15 +219,15 @@ const UpdateDestination = () => {
     setActivities(newActivities);
   };
 
-  // Handle climate change
-  const handleClimateChange = (event) => {
-    setClimate(event.target.value);
+  // Handle climate selection
+  const handleClimateSelect = (selectedClimate) => {
+    setClimate(selectedClimate);
     setErrors(prevErrors => ({ ...prevErrors, climate: '' }));
   };
 
-  // Handle best time to visit change
-  const handleBestTimeChange = (event) => {
-    setBestTimeToVisit(event.target.value);
+  // Handle best time to visit selection
+  const handleTimeSelect = (selectedTime) => {
+    setBestTimeToVisit(selectedTime);
     setErrors(prevErrors => ({ ...prevErrors, bestTimeToVisit: '' }));
   };
 
@@ -197,6 +252,16 @@ const UpdateDestination = () => {
     if (accommodationOptions.length === 0) newErrors.accommodationOptions = "At least one accommodation option is required.";
     if (activities.length === 0) newErrors.activities = "At least one activity is required.";
     if (!climate) newErrors.climate = "Climate is required.";
+    
+    // Validate contact field
+    if (!destinationContact) {
+      newErrors.destinationContact = "Contact number is required.";
+    } else if (destinationContact.length !== 10) {
+      newErrors.destinationContact = "Contact number must be exactly 10 digits.";
+    } else if (!/^\d+$/.test(destinationContact)) {
+      newErrors.destinationContact = "Contact number must contain only digits.";
+    }
+    
     return newErrors;
   };
 
@@ -212,13 +277,13 @@ const UpdateDestination = () => {
     try {
       setLoading(true);
       
-      // Prepare the destination data
       const destinationData = {
         destination_id: destinationId,
         destination_name: destinationName,
         destination_image_url: destinationImage,
         destination_rating: destinationRating,
         destination_description: destinationDescription,
+        destination_contact: destinationContact,
         location: location,
         popular_attractions: popularAttractions,
         best_time_to_visit: bestTimeToVisit,
@@ -238,8 +303,6 @@ const UpdateDestination = () => {
       
       setLoading(false);
       swal("Success", "Destination updated successfully!", "success");
-      navigate('/view-destination'); // Redirect to destinations list page
-      
     } catch (error) {
       setLoading(false);
       console.error(error);
@@ -256,14 +319,6 @@ const UpdateDestination = () => {
   const handleCancel = () => {
     navigate('/destinations');
   };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Box>
@@ -283,7 +338,7 @@ const UpdateDestination = () => {
             </Typography>
           </Box>
 
-          {/* Main form - Moved to top level and wraps all inputs */}
+          {/* Main form */}
           <Box component="form" width="100%" noValidate autoComplete="off" onSubmit={handleSubmit}>
             <Box display="flex" width="100%" flexDirection={{ xs: 'column', md: 'row' }}>
               {/* Left Form Section */}
@@ -299,17 +354,11 @@ const UpdateDestination = () => {
                   label="Destination ID"
                   variant="outlined"
                   value={destinationId}
-                  onChange={(e) => {
-                    setDestinationId(e.target.value);
-                    if (errors.destinationId) {
-                      setErrors(prevErrors => ({ ...prevErrors, destinationId: '' }));
-                    }
+                  InputProps={{
+                    readOnly: true,
                   }}
-                  helperText={errors.destinationId}
-                  error={!!errors.destinationId}
-                  required
+                  disabled
                   style={{marginTop:'20px'}}
-                  disabled // Disable editing destination ID for updates
                 />
                 <TextField
                   fullWidth
@@ -345,6 +394,23 @@ const UpdateDestination = () => {
                   required
                 />
 
+                {/* Contact Field */}
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Destination Contact"
+                  variant="outlined"
+                  value={destinationContact}
+                  onChange={handleContactChange}
+                  onBlur={handleContactBlur}
+                  helperText={contactTouched && errors.destinationContact ? errors.destinationContact : ''}
+                  error={contactTouched && !!errors.destinationContact}
+                  required
+                  inputProps={{
+                    maxLength: 10,
+                  }}
+                />
+
                 <TextField
                   fullWidth
                   margin="normal"
@@ -365,52 +431,84 @@ const UpdateDestination = () => {
                 />
 
                 <Box mt={2} width="100%" alignItems="flex-start" justifyContent="flex-start">
-                <Typography variant="subtitle1" align="left">Popular Attractions *</Typography>
-                <Box display="flex" alignItems="center" width="100%">
+                  <Typography variant="subtitle1" align="left">Popular Attractions *</Typography>
+                  <Box display="flex" alignItems="center" width="100%">
                     <TextField
-                    fullWidth
-                    variant="outlined"
-                    value={currentAttraction}
-                    onChange={(e) => setCurrentAttraction(e.target.value)}
-                    placeholder="Add attraction"
+                      fullWidth
+                      variant="outlined"
+                      value={currentAttraction}
+                      onChange={(e) => setCurrentAttraction(e.target.value)}
+                      placeholder="Add attraction"
                     />
                     <IconButton color="primary" onClick={handleAddAttraction} type="button">
-                    <AddIcon />
+                      <AddIcon />
                     </IconButton>
-                </Box>
-                <Box display="flex" flexWrap="wrap" mt={1} justifyContent="flex-start">
+                  </Box>
+                  <Box display="flex" flexWrap="wrap" mt={1} justifyContent="flex-start">
                     {popularAttractions.map((attraction, index) => (
-                    <Chip
+                      <Chip
                         key={index}
                         label={attraction}
                         onDelete={() => handleRemoveAttraction(index)}
                         color="primary"
                         variant="outlined"
                         style={{ margin: '4px' }}
-                    />
+                      />
                     ))}
-                </Box>
-                {errors.popularAttractions && (
+                  </Box>
+                  {errors.popularAttractions && (
                     <FormHelperText error>{errors.popularAttractions}</FormHelperText>
-                )}
+                  )}
                 </Box>
                 
-                {/* Best Time to Visit - Dropdown */}
-                <FormControl fullWidth margin="normal" variant="outlined" error={!!errors.bestTimeToVisit} required>
-                  <InputLabel>Best Time to Visit</InputLabel>
-                  <Select
-                    value={bestTimeToVisit}
-                    onChange={handleBestTimeChange}
-                    label="Best Time to Visit"
-                  >
+                {/* Best Time to Visit - Icon Selection */}
+                <Box mt={3} width="100%">
+                  <Typography variant="subtitle1" align="left">Best Time to Visit *</Typography>
+                  <Box display="flex" flexWrap="wrap" justifyContent="space-between" mt={1}>
                     {timeOptions.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
+                      <Paper
+                        key={option.value}
+                        onClick={() => handleTimeSelect(option.value)}
+                        elevation={bestTimeToVisit === option.value ? 6 : 1}
+                        style={{
+                          padding: '10px',
+                          margin: '6px',
+                          width: '25%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          backgroundColor: bestTimeToVisit === option.value ? option.color + '33' : 'white',
+                          border: bestTimeToVisit === option.value ? `2px solid ${option.color}` : '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          transition: 'all 0.3s'
+                        }}
+                      >
+                        <Box
+                          style={{
+                            backgroundColor: option.color,
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            color: 'white',
+                            marginBottom: '5px'
+                          }}
+                        >
+                          {React.cloneElement(option.icon, { style: { fontSize: 24 } })}
+                        </Box>
+                        <Typography variant="caption" align="center" style={{ fontSize: '10px' }}>
+                          {option.value}
+                        </Typography>
+                      </Paper>
                     ))}
-                  </Select>
-                  <FormHelperText>{errors.bestTimeToVisit}</FormHelperText>
-                </FormControl>
+                  </Box>
+                  {errors.bestTimeToVisit && (
+                    <FormHelperText error>{errors.bestTimeToVisit}</FormHelperText>
+                  )}
+                </Box>
 
                 {/* Travel Tips */}
                 <TextField
@@ -433,26 +531,26 @@ const UpdateDestination = () => {
                 />
  
                 <Box mt={2} width="100%" alignItems="flex-start" justifyContent="flex-start">
-                <Typography variant="subtitle1" align="left">Rating *</Typography>
-                <Box display="flex" alignItems="center" justifyContent="flex-start">
+                  <Typography variant="subtitle1" align="left">Rating *</Typography>
+                  <Box display="flex" alignItems="center" justifyContent="flex-start">
                     {[1, 2, 3, 4, 5].map((star) => (
-                    <IconButton 
+                      <IconButton 
                         key={star}
                         onClick={() => handleStarRating(star)}
                         style={{ padding: '8px' }}
                         type="button"
-                    >
+                      >
                         {star <= destinationRating ? (
-                        <StarIcon style={{ color: '#FFD700', fontSize: '32px' }} />
+                          <StarIcon style={{ color: '#FFD700', fontSize: '32px' }} />
                         ) : (
-                        <StarBorderIcon style={{ fontSize: '32px' }} />
+                          <StarBorderIcon style={{ fontSize: '32px' }} />
                         )}
-                    </IconButton>
+                      </IconButton>
                     ))}
-                </Box>
-                {errors.destinationRating && (
+                  </Box>
+                  {errors.destinationRating && (
                     <FormHelperText error>{errors.destinationRating}</FormHelperText>
-                )}
+                  )}
                 </Box>
               </Box>
 
@@ -465,8 +563,57 @@ const UpdateDestination = () => {
                   display: { xs: 'none', md: 'block' }
                 }}
               >
+                {/* Climate - Icon Selection */}
+                <Box mt={2} width="100%">
+                  <Typography variant="subtitle1" align="left">Climate *</Typography>
+                  <Box display="flex" flexWrap="wrap" justifyContent="space-between" mt={1}>
+                    {climateOptions.map((option) => (
+                      <Paper
+                        key={option.value}
+                        onClick={() => handleClimateSelect(option.value)}
+                        elevation={climate === option.value ? 6 : 1}
+                        style={{
+                          padding: '10px',
+                          margin: '9px',
+                          width: '40%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          backgroundColor: climate === option.value ? option.color + '33' : 'white',
+                          border: climate === option.value ? `2px solid ${option.color}` : '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          transition: 'all 0.3s'
+                        }}
+                      >
+                        <Box
+                          style={{
+                            backgroundColor: option.color,
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            color: 'white',
+                            marginBottom: '5px'
+                          }}
+                        >
+                          {React.cloneElement(option.icon, { style: { fontSize: 24 } })}
+                        </Box>
+                        <Typography variant="caption" align="center">
+                          {option.value}
+                        </Typography>
+                      </Paper>
+                    ))}
+                  </Box>
+                  {errors.climate && (
+                    <FormHelperText error>{errors.climate}</FormHelperText>
+                  )}
+                </Box>
+
                 {/* Accommodation Options */}
-                <Box>
+                <Box mt={3}>
                   <Typography variant="subtitle1">Accommodation Options *</Typography>
                   <Box display="flex" alignItems="center">
                     <TextField
@@ -532,23 +679,6 @@ const UpdateDestination = () => {
                     <FormHelperText error>{errors.activities}</FormHelperText>
                   )}
                 </Box>
-
-                {/* Climate */}
-                <FormControl fullWidth margin="normal" variant="outlined" error={!!errors.climate} required>
-                  <InputLabel>Climate</InputLabel>
-                  <Select
-                    value={climate}
-                    onChange={handleClimateChange}
-                    label="Climate"
-                  >
-                    {climateOptions.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText>{errors.climate}</FormHelperText>
-                </FormControl>
 
                 {/* Image URL input */}
                 <Box mt={2}>

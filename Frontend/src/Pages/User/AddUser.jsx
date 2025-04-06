@@ -24,6 +24,8 @@ const AddUser = () => {
   const [profilePicturePreview, setProfilePicturePreview] = useState('');
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+  const [error, setError] = useState("");
+  
 
   // Function to generate user ID
   const generateUserId = () => {
@@ -97,19 +99,18 @@ const AddUser = () => {
   };
 
   const handleEmailChange = (e) => {
-    const value = e.target.value;
-    setEmail(value);
+    const inputValue = e.target.value;
+    setEmail(inputValue);
 
-    // Real-time validation for email
-    if (value && !validateEmail(value)) {
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        email: "Invalid email format"
-      }));
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailPattern.test(inputValue)) {
+      setError("Enter a valid email address");
     } else {
-      setErrors(prevErrors => ({ ...prevErrors, email: '' }));
+      setError("");
     }
   };
+  
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
@@ -185,6 +186,8 @@ const AddUser = () => {
 
     return newErrors;
   };
+
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -413,10 +416,11 @@ const AddUser = () => {
                     margin="normal"
                     label="Email"
                     variant="outlined"
+                    type="email"
                     value={email}
                     onChange={handleEmailChange}
-                    helperText={errors.email}
-                    error={!!errors.email}
+                    helperText={error}
+                    error={!!error}
                     required
                   />
 
@@ -430,6 +434,7 @@ const AddUser = () => {
                     helperText={errors.contact}
                     error={!!errors.contact}
                     required
+                    inputProps={{ maxLength: 10, pattern: "[0-9]{10}" }}
                   />
 
                   <TextField

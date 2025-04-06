@@ -37,7 +37,7 @@ const upload = multer({
 class DestinationController {
   // Middleware to handle file uploads
   static uploadDestinationImage = upload.single('destination_image');
-
+  
   static async createDestination(req, res) {
     console.log("Request Body:", req.body);
     try {
@@ -46,6 +46,7 @@ class DestinationController {
         destination_name,
         destination_rating,
         destination_description,
+        destination_contact, // Added this field
         location,
         popular_attractions,
         best_time_to_visit,
@@ -53,40 +54,35 @@ class DestinationController {
         accommodation_options,
         activities,
         climate,
-        destination_image_url, // Ensure this is extracted from req.body
+        destination_image_url,
       } = req.body;
   
-      console.log(req.body); // Log the request body to verify the payload
+      console.log(req.body);
   
-      // Check if the destination already exists
       const existingDestination = await Destination.findOne({ destination_id });
       if (existingDestination) {
         if (req.file) {
-          fs.unlinkSync(req.file.path); // Delete uploaded file if it exists
+          fs.unlinkSync(req.file.path);
         }
         return res.status(400).json({ message: 'Destination with this ID already exists' });
       }
   
-      // Handle the destination image (either from file upload or URL)
       let destination_image;
       if (req.file) {
-        // If a file was uploaded, use its path
         destination_image = `/uploads/destinations/${req.file.filename}`;
       } else if (destination_image_url) {
-        // Use the image URL provided in the request body
         destination_image = destination_image_url;
       } else {
-        // If neither file nor URL is provided, return an error
         return res.status(400).json({ message: 'Destination image or image URL is required' });
       }
   
-      // Create a new destination
       const newDestination = new Destination({
         destination_id,
         destination_name,
-        destination_image, // Use the resolved image URL or file path
+        destination_image,
         destination_rating,
         destination_description,
+        destination_contact, // Added this field
         location,
         popular_attractions,
         best_time_to_visit,
@@ -96,42 +92,35 @@ class DestinationController {
         climate,
       });
   
-      // Save the destination to the database
       await newDestination.save();
   
       res.status(201).json({ message: 'Destination created successfully', destination: newDestination });
     } catch (error) {
       if (req.file) {
-        fs.unlinkSync(req.file.path); // Delete uploaded file on error
+        fs.unlinkSync(req.file.path);
       }
       console.error('Error creating destination:', error);
       res.status(500).json({ message: 'Error creating destination', error: error.message });
     }
   }
-
-  // Update a destination by ID
+  
   static async updateDestination(req, res) {
     try {
       const { id } = req.params;
       const updateData = { ...req.body };
-      const { destination_image_url } = req.body; // Added support for image URL
-
-      // Find the destination before updating
+      const { destination_image_url } = req.body;
+  
       const destination = await Destination.findOne({ _id: id });
       if (!destination) {
-        // If file was uploaded, delete it since we're not updating
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
         return res.status(404).json({ message: 'Destination not found' });
       }
-
-      // Handle the destination image (either from file upload or URL)
+  
       if (req.file) {
-        // Create URL path for the uploaded image
         updateData.destination_image = `/uploads/destinations/${req.file.filename}`;
-
-        // Delete the old image file if it exists and is not a URL
+  
         if (destination.destination_image && destination.destination_image.startsWith('/uploads/')) {
           const oldImagePath = path.join('public', destination.destination_image);
           if (fs.existsSync(oldImagePath)) {
@@ -139,10 +128,8 @@ class DestinationController {
           }
         }
       } else if (destination_image_url) {
-        // Use the image URL provided in the request body
         updateData.destination_image = destination_image_url;
         
-        // Delete the old image file if it exists and is not a URL
         if (destination.destination_image && destination.destination_image.startsWith('/uploads/')) {
           const oldImagePath = path.join('public', destination.destination_image);
           if (fs.existsSync(oldImagePath)) {
@@ -150,16 +137,14 @@ class DestinationController {
           }
         }
       }
-
-      // Find and update the destination
+  
       const updatedDestination = await Destination.findOneAndUpdate({ _id: id }, updateData, {
-        new: true, // Return the updated document
-        runValidators: true, // Validate the update data
+        new: true,
+        runValidators: true,
       });
-
+  
       res.status(200).json({ message: 'Destination updated successfully', destination: updatedDestination });
     } catch (error) {
-      // If file was uploaded, delete it on error
       if (req.file) {
         fs.unlinkSync(req.file.path);
       }

@@ -67,11 +67,13 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: theme.spacing(4),
     transition: 'transform 0.3s ease',
     '&:hover': {
       transform: 'translateY(-10px)',
-    }
+    },
+    paddingBottom:'20px',
+    paddingLeft:'15px',
+    paddingRight:'15px'
   },
   testimonialCard: {
     padding: theme.spacing(3),
@@ -129,25 +131,25 @@ const Home = () => {
     }
   ];
 
-  // Features data
+  // Features data with SVG icons
   const features = [
     {
-      icon: <LocationOn className={classes.iconLarge} />,
+      image: "https://img.freepik.com/premium-vector/summer-time-travel-concept-man-with-map-hands-tourism-trip-holiday-vacation-hiking_118813-25205.jpg?semt=ais_hybrid&w=740",
       title: "Explore Destinations",
       description: "Discover thousands of destinations with detailed guides and local insights."
     },
     {
-      icon: <Hotel className={classes.iconLarge} />,
+      image: "https://img.freepik.com/premium-vector/young-woman-reading-book-studying-home-book-lovers-hobby_273625-1765.jpg?semt=ais_hybrid&w=740",
       title: "Book Accommodations",
       description: "Find and book the perfect hotels, resorts, or homestays for your trip."
     },
     {
-      icon: <Restaurant className={classes.iconLarge} />,
+      image: "https://img.freepik.com/free-photo/woman-enjoying-coffee-by-window_23-2151963090.jpg?semt=ais_hybrid&w=740",
       title: "Local Cuisine",
       description: "Experience authentic local food with our restaurant recommendations."
     },
     {
-      icon: <Flight className={classes.iconLarge} />,
+      image: "https://img.freepik.com/free-vector/traveling-people-with-luggage-boarding-passes-isometric-composition-with-plane-violet_1284-26826.jpg?semt=ais_hybrid&w=740",
       title: "Flight Deals",
       description: "Get the best flight deals and travel packages for your budget."
     }
@@ -342,8 +344,17 @@ const Home = () => {
             {features.map((feature, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card className={classes.featureCard} elevation={3}>
-                  {feature.icon}
-                  <Typography variant="h5" gutterBottom style={{ fontWeight: 'bold' }}>
+                <img 
+        src={feature.image} 
+        alt={feature.title}
+        style={{ 
+          width: '380px', 
+          height: '415px', 
+          marginBottom: '16px',
+          objectFit: 'contain' 
+        }} 
+      />
+                  <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
                     {feature.title}
                   </Typography>
                   <Typography variant="body1" color="textSecondary" align="center">

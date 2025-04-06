@@ -431,6 +431,7 @@ const UserRegistration = () => {
             onChange={handleContactChange}
             helperText={errors.contact}
             error={!!errors.contact}
+            inputProps={{ maxLength: 10, pattern: "[0-9]{10}" }}
             required
           />
 
@@ -474,7 +475,6 @@ const UserRegistration = () => {
             >
               <FormControlLabel value="Male" control={<Radio />} label="Male" />
               <FormControlLabel value="Female" control={<Radio />} label="Female" />
-              <FormControlLabel value="Other" control={<Radio />} label="Other" />
             </RadioGroup>
             <FormHelperText>{errors.gender}</FormHelperText>
           </FormControl>

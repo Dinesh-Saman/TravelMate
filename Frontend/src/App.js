@@ -29,6 +29,7 @@ import AdminHome from './Pages/Tourpackage/admin/AdminHome';
 import PackageDetails from './Pages/Tourpackage/customer/PackageDetails';
 import TravelManagement from './Pages/Tourpackage/admin/TravelManagement';
 import AdminBookings from './Pages/Tourpackage/admin/AdminBookings';
+import ViewReviews from './Pages/Review/ViewReviews';
 
 function App() {
   return (
@@ -47,6 +48,8 @@ function App() {
           <Route path="/users" element={<ViewUsers/>} />
           <Route path="/add-user" element={<AddUser/>} />
           <Route path="/user-report" element={<UserReportPage/>} />
+
+          <Route path="/view-reviews" element={<ViewReviews/>} />
 
           <Route path="/dashboard" element={<MainDashboard/>} />
           <Route path="/add-hotel" element={<AddHotel/>} />

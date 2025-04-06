@@ -5,23 +5,27 @@ const destinationSchema = new Schema({
   destination_id: {
     type: String,
     required: true,
-    unique: true, // Ensure destination_id is unique
+    unique: true,
   },
   destination_name: {
     type: String,
     required: true,
   },
   destination_image: {
-    type: String, // Store the URL or file path of the image
+    type: String,
     required: true,
   },
   destination_rating: {
     type: Number,
     required: true,
     min: 1,
-    max: 5, // Rating between 1 and 5
+    max: 5,
   },
   destination_description: {
+    type: String,
+    required: true,
+  },
+  destination_contact: {
     type: String,
     required: true,
   },
@@ -30,7 +34,7 @@ const destinationSchema = new Schema({
     required: true,
   },
   popular_attractions: {
-    type: [String], // Array of strings for popular attractions
+    type: [String],
     required: true,
   },
   best_time_to_visit: {
@@ -42,11 +46,11 @@ const destinationSchema = new Schema({
     required: true,
   },
   accommodation_options: {
-    type: [String], // Array of strings for accommodation options
+    type: [String],
     required: true,
   },
   activities: {
-    type: [String], // Array of strings for activities
+    type: [String],
     required: true,
   },
   climate: {
@@ -60,11 +64,10 @@ const destinationSchema = new Schema({
       'Continental',
       'Polar',
       'Mountain',
-    ], // Dropdown options for climate
+    ],
   },
-}, { timestamps: true }); // Adds createdAt and updatedAt timestamps
+}, { timestamps: true });
 
-// Add index for faster lookup by destination_id
 destinationSchema.index({ destination_id: 1 });
 
 module.exports = mongoose.model('Destination', destinationSchema);

@@ -16,6 +16,7 @@ const AddHotel = () => {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [contact, setContact] = useState('');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [starRating, setStarRating] = useState('');
@@ -25,6 +26,10 @@ const AddHotel = () => {
   const [useImageUrl, setUseImageUrl] = useState(true);
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+  const [websiteTouched, setWebsiteTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [contactTouched, setContactTouched] = useState(false);
+  const [imageUrlTouched, setImageUrlTouched] = useState(false);
 
   // Package details
   const [packages, setPackages] = useState([]);
@@ -38,62 +43,234 @@ const AddHotel = () => {
   const [inclusion, setInclusion] = useState('');
   const [packageErrors, setPackageErrors] = useState({});
 
-  // Effect to check if all required fields are filled
+  // Generate hotel ID
+  const generateHotelId = () => {
+    const randomNum = Math.floor(10000000 + Math.random() * 90000000);
+    return `HTL${randomNum}`;
+  };
+
   useEffect(() => {
-    const requiredFields = {
-      hotelId,
-      hotelName,
-      address,
-      city,
-      phoneNumber,
-      email,
-      website,
-      starRating,
-      description,
+    const newHotelId = generateHotelId();
+    setHotelId(newHotelId);
+  }, []);
+
+  // Validate form whenever relevant fields change
+  useEffect(() => {
+    const validateForm = () => {
+      const requiredFields = {
+        hotelId,
+        hotelName,
+        address,
+        city,
+        contact,
+        email,
+        starRating,
+        description,
+      };
+      
+      // Check basic required fields
+      const basicFieldsValid = Object.values(requiredFields).every(field => field !== '');
+      
+      // Validate image
+      let imageValid = false;
+      if (useImageUrl) {
+        imageValid = hotelImage.startsWith('https://');
+      } else {
+        imageValid = uploadedImage !== null;
+      }
+      
+      // Validate email format if email is not empty
+      const emailValid = !email || /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+      
+      // Validate contact if not empty
+      const contactValid = !contact || /^\d{10}$/.test(contact);
+      
+      // Website is optional but must be valid if provided
+      const websiteValid = !website || /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(website);
+      
+      setIsFormValid(
+        basicFieldsValid && 
+        imageValid && 
+        emailValid && 
+        contactValid && 
+        websiteValid
+      );
     };
+
+    validateForm();
+  }, [
+    hotelId, hotelName, address, city, contact, email, website, 
+    starRating, description, hotelImage, uploadedImage, useImageUrl
+  ]);
+
+  // Image URL handling
+  const handleImageUrlChange = (e) => {
+    const value = e.target.value;
+    setHotelImage(value);
     
-    // Check if all required fields have values and at least one of the image options is valid
-    const imageValid = useImageUrl ? hotelImage !== '' : uploadedImage !== null;
-    const valid = Object.values(requiredFields).every(field => field !== '') && imageValid;
-    setIsFormValid(valid);
-  }, [hotelId, hotelName, address, city, phoneNumber, email, website, starRating, description, hotelImage, uploadedImage, useImageUrl]);
-
-// Update the handler to accept either an event object or a direct value
-const handleStarRatingChange = (eventOrValue) => {
-  // If it's an event object with target.value, use that
-  if (eventOrValue && eventOrValue.target && eventOrValue.target.value !== undefined) {
-    setStarRating(eventOrValue.target.value);
-  } 
-  // Otherwise assume it's a direct rating value
-  else {
-    setStarRating(eventOrValue);
-  }
-  
-  setErrors(prevErrors => ({ ...prevErrors, starRating: '' }));
-};
-
-const handleImageUpload = async (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    try {
-      const response = await axios.post('http://localhost:3001/hotel/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      setUploadedImage(file);
-      setHotelImage(response.data.imageUrl);
-      setUseImageUrl(false);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      swal("Error", "Failed to upload image. Please try again.", "error");
+    if (imageUrlTouched) {
+      validateImageUrl(value);
     }
-  }
-};
+  };
+
+  const handleImageUrlBlur = () => {
+    setImageUrlTouched(true);
+    validateImageUrl(hotelImage);
+  };
+
+  const validateImageUrl = (value) => {
+    if (!value) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        hotelImage: "Hotel image URL is required"
+      }));
+      return false;
+    } else if (!value.startsWith('https://')) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        hotelImage: "Image URL must start with https://"
+      }));
+      return false;
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, hotelImage: '' }));
+      return true;
+    }
+  };
+
+  // Contact handling
+  const handleContactChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    setContact(value);
+  
+    if (contactTouched) {
+      const contactRegex = /^\d{10}$/;
+      if (!contactRegex.test(value)) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          contact: "Contact number must be exactly 10 digits"
+        }));
+      } else {
+        setErrors(prevErrors => ({ ...prevErrors, contact: '' }));
+      }
+    }
+  };
+
+  const handleContactBlur = () => {
+    setContactTouched(true);
+    const contactRegex = /^\d{10}$/;
+    if (!contact) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        contact: "Contact number is required"
+      }));
+    } else if (!contactRegex.test(contact)) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        contact: "Contact number must be exactly 10 digits"
+      }));
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, contact: '' }));
+    }
+  };
+
+  // Email handling
+  const handleEmailChange = (e) => {
+    const inputValue = e.target.value;
+    setEmail(inputValue);
+
+    if (emailTouched) {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailPattern.test(inputValue)) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          email: "Enter a valid email address"
+        }));
+      } else {
+        setErrors(prevErrors => ({ ...prevErrors, email: '' }));
+      }
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email)) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        email: "Enter a valid email address"
+      }));
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, email: '' }));
+    }
+  };
+
+  // Website handling
+  const handleWebsiteChange = (e) => {
+    const inputValue = e.target.value;
+    setWebsite(inputValue);
+    
+    if (websiteTouched) {
+      validateWebsite(inputValue);
+    }
+  };
+
+  const handleWebsiteBlur = () => {
+    setWebsiteTouched(true);
+    validateWebsite(website);
+  };
+
+  const validateWebsite = (value) => {
+    if (!value) {
+      setErrors(prevErrors => ({ ...prevErrors, website: '' }));
+      return;
+    }
+    
+    const urlPattern = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+    
+    if (!urlPattern.test(value)) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        website: "Enter a valid website URL (e.g., https://example.com)"
+      }));
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, website: '' }));
+    }
+  };
+
+  // Star rating handling
+  const handleStarRatingChange = (eventOrValue) => {
+    if (eventOrValue && eventOrValue.target && eventOrValue.target.value !== undefined) {
+      setStarRating(eventOrValue.target.value);
+    } else {
+      setStarRating(eventOrValue);
+    }
+    
+    setErrors(prevErrors => ({ ...prevErrors, starRating: '' }));
+  };
+
+  // Image upload handling
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await axios.post('http://localhost:3001/hotel/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        setUploadedImage(file);
+        setHotelImage(response.data.imageUrl);
+        setUseImageUrl(false);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        swal("Error", "Failed to upload image. Please try again.", "error");
+      }
+    }
+  };
 
   const toggleImageSource = () => {
     setUseImageUrl(!useImageUrl);
@@ -104,41 +281,7 @@ const handleImageUpload = async (event) => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!hotelId) newErrors.hotelId = "Hotel ID is required.";
-    if (!hotelName) newErrors.hotelName = "Hotel Name is required.";
-    if (!address) newErrors.address = "Address is required.";
-    if (!city) newErrors.city = "City is required.";
-    if (!phoneNumber) newErrors.phoneNumber = "Phone Number is required.";
-    if (!email) newErrors.email = "Email is required.";
-    if (!validateEmail(email)) newErrors.email = "Invalid email format.";
-    if (!website) newErrors.website = "Website is required.";
-    if (!validateWebsite(website)) newErrors.website = "Invalid website URL format.";
-    if (!starRating) newErrors.starRating = "Star Rating is required.";
-    if (!description) newErrors.description = "Description is required.";
-    
-    if (useImageUrl && !hotelImage) {
-      newErrors.hotelImage = "Hotel Image URL is required.";
-    } else if (!useImageUrl && !uploadedImage) {
-      newErrors.hotelImage = "Please upload an image.";
-    }
-    
-    return newErrors;
-  };
-
-  // Email validation
-  const validateEmail = (email) => {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase()) || email === '';
-  };
-
-  // Website validation
-  const validateWebsite = (website) => {
-    const re = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
-    return re.test(String(website).toLowerCase()) || website === '';
-  };
-
+  // Package handling
   const validatePackage = () => {
     const newErrors = {};
     if (!currentPackage.package_name) newErrors.package_name = "Package name is required.";
@@ -161,6 +304,76 @@ const handleImageUpload = async (event) => {
     }
     
     return newErrors;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+  
+    // Basic field validations
+    if (!hotelId) {
+      newErrors.hotelId = "Hotel ID is required";
+      isValid = false;
+    }
+    if (!hotelName) {
+      newErrors.hotelName = "Hotel Name is required";
+      isValid = false;
+    }
+    if (!address) {
+      newErrors.address = "Address is required";
+      isValid = false;
+    }
+    if (!city) {
+      newErrors.city = "City is required";
+      isValid = false;
+    }
+    if (!contact) {
+      newErrors.contact = "Contact number is required";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(contact)) {
+      newErrors.contact = "Contact must be 10 digits";
+      isValid = false;
+    }
+    if (!email) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      newErrors.email = "Invalid email format";
+      isValid = false;
+    }
+    if (!starRating) {
+      newErrors.starRating = "Star rating is required";
+      isValid = false;
+    }
+    if (!description) {
+      newErrors.description = "Description is required";
+      isValid = false;
+    }
+  
+    // Image validation
+    if (useImageUrl) {
+      if (!hotelImage) {
+        newErrors.hotelImage = "Image URL is required";
+        isValid = false;
+      } else if (!hotelImage.startsWith('https://')) {
+        newErrors.hotelImage = "Image URL must start with https://";
+        isValid = false;
+      }
+    } else {
+      if (!uploadedImage) {
+        newErrors.hotelImage = "Please upload an image";
+        isValid = false;
+      }
+    }
+  
+    // Website validation (optional but must be valid if provided)
+    if (website && !/^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(website)) {
+      newErrors.website = "Invalid website URL";
+      isValid = false;
+    }
+  
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleAddInclusion = () => {
@@ -186,7 +399,6 @@ const handleImageUpload = async (event) => {
   };
 
   const handleAddPackage = () => {
-    // Ensure validity_period is a valid date
     let updatedPackage = { ...currentPackage };
     
     if (!updatedPackage.validity_period) {
@@ -201,10 +413,8 @@ const handleImageUpload = async (event) => {
       return;
     }
     
-    // Add the new package to the packages array
     setPackages([...packages, { ...updatedPackage }]);
     
-    // Reset the current package form
     setCurrentPackage({
       package_name: '',
       package_description: '',
@@ -232,7 +442,6 @@ const handleImageUpload = async (event) => {
     try {
       let imageUrl = hotelImage;
       
-      // If image is uploaded, send it to the server first
       if (!useImageUrl && uploadedImage) {
         const formData = new FormData();
         formData.append('image', uploadedImage);
@@ -246,39 +455,31 @@ const handleImageUpload = async (event) => {
         imageUrl = uploadResponse.data.imageUrl;
       }
   
-      // Prepare each package by formatting the date properly
       const formattedPackages = packages.map(pkg => ({
         ...pkg,
-        // Ensure date is in ISO format
         validity_period: new Date(pkg.validity_period).toISOString()
       }));
-  
-      // Log the packages being sent
-      console.log('Sending packages:', formattedPackages);
   
       const newHotel = {
         hotel_id: hotelId,
         hotel_name: hotelName,
         address,
         city,
-        phone_number: phoneNumber,
+        phone_number: contact,
         email,
         website,
         star_rating: Number(starRating),
         description,
         hotel_image: imageUrl,
-        hotel_packages: formattedPackages, // Send the formatted packages
+        hotel_packages: formattedPackages,
       };
   
-      // Log the full payload for debugging
-      console.log('Sending hotel data:', newHotel);
-  
       const response = await axios.post('http://localhost:3001/hotel/add-hotel', newHotel);
-      console.log('Response:', response.data);
       
       swal("Success", "New hotel added successfully!", "success");
       // Reset form fields
-      setHotelId('');
+      const newHotelId = generateHotelId();
+      setHotelId(newHotelId);
       setHotelName('');
       setAddress('');
       setCity('');
@@ -294,7 +495,6 @@ const handleImageUpload = async (event) => {
     } catch (error) {
       console.error('Error creating hotel:', error);
       
-      // Check for specific error types
       if (error.response && error.response.status === 400) {
         swal("Error", error.response.data.message, "error");
         setErrors(prevErrors => ({ 
@@ -317,38 +517,36 @@ const handleImageUpload = async (event) => {
     }
   };
 
-// The StarRatingComponent remains the same, now the handler will correctly process the ratingValue
-const StarRatingComponent = () => {
-  const totalStars = 5;
-  
-  return (
-    <Box mt={2}>
-      <Typography variant="body1" gutterBottom>Star Rating <span style={{ color: 'red' }}>*</span></Typography>
-      <Box display="flex" alignItems="center">
-        {[...Array(totalStars)].map((_, index) => {
-          const ratingValue = index + 1;
-          return (
-            <IconButton 
-              key={index}
-              onClick={() => handleStarRatingChange(ratingValue)}
-              style={{ padding: '4px' }}
-            >
-              {ratingValue <= starRating ? 
-                <Star style={{ color: '#FFD700' }} fontSize="large" /> : 
-                <StarBorder fontSize="large" />
-              }
-            </IconButton>
-          );
-        })}
+  const StarRatingComponent = () => {
+    const totalStars = 5;
+    
+    return (
+      <Box mt={2}>
+        <Typography variant="body1" gutterBottom>Star Rating <span style={{ color: 'red' }}>*</span></Typography>
+        <Box display="flex" alignItems="center">
+          {[...Array(totalStars)].map((_, index) => {
+            const ratingValue = index + 1;
+            return (
+              <IconButton 
+                key={index}
+                onClick={() => handleStarRatingChange(ratingValue)}
+                style={{ padding: '4px' }}
+              >
+                {ratingValue <= starRating ? 
+                  <Star style={{ color: '#FFD700' }} fontSize="large" /> : 
+                  <StarBorder fontSize="large" />
+                }
+              </IconButton>
+            );
+          })}
+        </Box>
+        {errors.starRating && (
+          <FormHelperText error>{errors.starRating}</FormHelperText>
+        )}
       </Box>
-      {errors.starRating && (
-        <FormHelperText error>{errors.starRating}</FormHelperText>
-      )}
-    </Box>
-  );
-};
+    );
+  };
 
-  // List of cities for the dropdown
   const popularCities = [
     "Colombo", "Kandy", "Galle", "Negombo", "Bentota", 
     "Nuwara Eliya", "Ella", "Mirissa", "Hikkaduwa", "Trincomalee", 
@@ -367,7 +565,6 @@ const StarRatingComponent = () => {
           p={2}
           style={{ backgroundColor: 'white', borderRadius: 8, boxShadow: '0px 0px 10px rgba(0,0,0,0.1)', flex: 1, margin: '15px' }}
         >
-          {/* Title Section */}
           <Box
             alignItems="center"
             justifyContent="center"
@@ -379,14 +576,11 @@ const StarRatingComponent = () => {
 
           <Box component="form" noValidate autoComplete="off" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              {/* Left side - Hotel Details */}
-             {/* Left side - Hotel Details */}
-             <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom style={{ color: '#555' }}>
                   Hotel Details
                 </Typography>
                 
-                {/* Hotel Details Form Fields */}
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <TextField
@@ -395,15 +589,15 @@ const StarRatingComponent = () => {
                       label="Hotel ID"
                       variant="outlined"
                       value={hotelId}
-                      onChange={(e) => {
-                        setHotelId(e.target.value);
-                        if (errors.hotelId) {
-                          setErrors(prevErrors => ({ ...prevErrors, hotelId: '' }));
-                        }
+                      InputProps={{
+                        readOnly: true,
+                        style: {
+                          backgroundColor: '#f0f0f0',
+                          color: '#757575',
+                          cursor: 'not-allowed',
+                        },
                       }}
-                      helperText={errors.hotelId}
-                      error={!!errors.hotelId}
-                      required
+                      helperText="System generated Hotel ID (cannot be modified)"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -465,68 +659,56 @@ const StarRatingComponent = () => {
                     </FormControl>
                   </Grid>
                   
-                  {/* Phone Number, Website, and Email in a single row */}
                   <Grid item xs={12}>
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          margin="normal"
-                          label="Phone Number"
-                          variant="outlined"
-                          value={phoneNumber}
-                          onChange={(e) => {
-                            setPhoneNumber(e.target.value);
-                            if (errors.phoneNumber) {
-                              setErrors(prevErrors => ({ ...prevErrors, phoneNumber: '' }));
-                            }
-                          }}
-                          helperText={errors.phoneNumber}
-                          error={!!errors.phoneNumber}
-                          required
-                        />
+                      <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Contact Number"
+                        variant="outlined"
+                        value={contact}
+                        onChange={handleContactChange}
+                        onBlur={handleContactBlur}
+                        helperText={errors.contact || ""}
+                        error={!!errors.contact}
+                        required
+                        inputProps={{ maxLength: 10, pattern: "[0-9]{10}" }}
+                        placeholder="10-digit number"
+                      />
                       </Grid>
                       <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          margin="normal"
-                          label="Website"
-                          variant="outlined"
-                          value={website}
-                          onChange={(e) => {
-                            setWebsite(e.target.value);
-                            if (errors.website) {
-                              setErrors(prevErrors => ({ ...prevErrors, website: '' }));
-                            }
-                          }}
-                          helperText={errors.website}
-                          error={!!errors.website}
-                          required
-                        />
+                      <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Website"
+                        variant="outlined"
+                        value={website}
+                        onChange={handleWebsiteChange}
+                        onBlur={handleWebsiteBlur}
+                        helperText={errors.website || ""}
+                        error={!!errors.website}
+                        placeholder="https://example.com"
+                      />
                       </Grid>
                       <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          margin="normal"
-                          label="Email"
-                          variant="outlined"
-                          type="email"
-                          value={email}
-                          onChange={(e) => {
-                            setEmail(e.target.value);
-                            if (errors.email) {
-                              setErrors(prevErrors => ({ ...prevErrors, email: '' }));
-                            }
-                          }}
-                          helperText={errors.email}
-                          error={!!errors.email}
-                          required
-                        />
+                      <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Email"
+                        variant="outlined"
+                        type="email"
+                        value={email}
+                        onChange={handleEmailChange}
+                        onBlur={handleEmailBlur}
+                        helperText={errors.email || ""}
+                        error={!!errors.email}
+                        required
+                      />
                       </Grid>
                     </Grid>
                   </Grid>
                   
-                  {/* Star Rating with Icons */}
                   <Grid item xs={12}>
                     <StarRatingComponent />
                   </Grid>
@@ -566,15 +748,11 @@ const StarRatingComponent = () => {
                 </Box>
               </Grid>
 
-
-              {/* Right side - Image Preview and Package Details */}
               <Grid item xs={12} md={6}>
-                {/* Hotel Image Preview Section - Moved to right side */}
                 <Typography variant="h6" gutterBottom style={{ color: '#555' }}>
                   Hotel Image
                 </Typography>
                 
-                {/* Hotel Image Preview */}
                 <Box
                   style={{
                     width: '100%',
@@ -627,15 +805,12 @@ const StarRatingComponent = () => {
                       label="Hotel Image URL"
                       variant="outlined"
                       value={hotelImage}
-                      onChange={(e) => {
-                        setHotelImage(e.target.value);
-                        if (errors.hotelImage) {
-                          setErrors(prevErrors => ({ ...prevErrors, hotelImage: '' }));
-                        }
-                      }}
-                      helperText={errors.hotelImage}
+                      onChange={handleImageUrlChange}
+                      onBlur={handleImageUrlBlur}
+                      helperText={errors.hotelImage || "URL must start with https://"}
                       error={!!errors.hotelImage}
                       required
+                      placeholder="https://example.com/image.jpg"
                     />
                   ) : (
                     <Box>
@@ -672,7 +847,6 @@ const StarRatingComponent = () => {
 
                 <Divider style={{ margin: '20px 0' }} />
 
-                {/* Package Details Section */}
                 <Typography variant="h6" gutterBottom style={{ color: '#555', marginTop: '20px' }}>
                   Add Package Details
                 </Typography>
@@ -717,53 +891,86 @@ const StarRatingComponent = () => {
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="Price"
-                      variant="outlined"
-                      type="number"
-                      value={currentPackage.price}
-                      onChange={(e) => {
-                        setCurrentPackage({ ...currentPackage, price: e.target.value });
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Price"
+                    variant="outlined"
+                    type="number"
+                    value={currentPackage.price}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || (Number(value) >= 0 && Number(value) <= 10000000)) {
+                        setCurrentPackage({ ...currentPackage, price: value });
                         if (packageErrors.price) {
                           setPackageErrors(prev => ({ ...prev, price: '' }));
                         }
-                      }}
-                      error={!!packageErrors.price}
-                      helperText={packageErrors.price}
-                      required
-                    />
+                      }
+                    }}
+                    onBlur={() => {
+                      if (currentPackage.price && Number(currentPackage.price) > 10000000) {
+                        setPackageErrors(prev => ({ 
+                          ...prev, 
+                          price: "Price cannot exceed 10,000,000" 
+                        }));
+                      }
+                    }}
+                    error={!!packageErrors.price}
+                    helperText={packageErrors.price || "Maximum: 10,000,000"}
+                    required
+                    inputProps={{
+                      min: 0,
+                      max: 10000000,
+                      step: "0.01"
+                    }}
+                  />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      id="validity-period"
-                      label="Validity Period"
-                      type="date"
-                      variant="outlined"
-                      value={currentPackage.validity_period ? 
-                        new Date(currentPackage.validity_period).toISOString().split('T')[0] : 
-                        new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]}
-                      onChange={(e) => {
-                        const newDate = e.target.value ? new Date(e.target.value) : 
-                          new Date(new Date().setMonth(new Date().getMonth() + 3));
-                        setCurrentPackage({ ...currentPackage, validity_period: newDate });
-                        if (packageErrors.validity_period) {
-                          setPackageErrors(prev => ({ ...prev, validity_period: '' }));
-                        }
-                      }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      inputProps={{
-                        min: new Date().toISOString().split('T')[0], // Set min date to today
-                      }}
-                      error={!!packageErrors.validity_period}
-                      helperText={packageErrors.validity_period}
-                      required
-                    />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    id="validity-period"
+                    label="Validity Period"
+                    type="date"
+                    variant="outlined"
+                    value={
+                      currentPackage.validity_period
+                        ? new Date(currentPackage.validity_period).toISOString().split('T')[0]
+                        : new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]
+                    }
+                    onChange={(e) => {
+                      const selectedDate = e.target.value ? new Date(e.target.value) : null;
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+
+                      if (!selectedDate || selectedDate < today) {
+                        setCurrentPackage({
+                          ...currentPackage,
+                          validity_period: currentPackage.validity_period || 
+                            new Date(new Date().setMonth(new Date().getMonth() + 3))
+                        });
+                        setPackageErrors(prev => ({
+                          ...prev,
+                          validity_period: "Please select today or a future date"
+                        }));
+                      } else {
+                        setCurrentPackage({
+                          ...currentPackage,
+                          validity_period: selectedDate
+                        });
+                        setPackageErrors(prev => ({ ...prev, validity_period: '' }));
+                      }
+                    }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    inputProps={{
+                      min: new Date().toISOString().split("T")[0],
+                    }}
+                    error={!!packageErrors.validity_period}
+                    helperText={packageErrors.validity_period || "Select a date from today onwards"}
+                    required
+                  />
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="subtitle1">Inclusions</Typography>
