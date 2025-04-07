@@ -116,7 +116,7 @@ const RecentHotels = () => {
   };
 
   const handleViewMoreHotels = () => {
-    navigate('/reserve-hotels');
+    navigate('/hotels');
   };
 
   return (

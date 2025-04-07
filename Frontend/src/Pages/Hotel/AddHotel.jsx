@@ -37,6 +37,7 @@ const AddHotel = () => {
     package_name: '',
     package_description: '',
     price: '',
+    no_of_rooms: 1, // Default to 1 room
     inclusions: [],
     validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
   });
@@ -287,6 +288,9 @@ const AddHotel = () => {
     if (!currentPackage.package_name) newErrors.package_name = "Package name is required.";
     if (!currentPackage.package_description) newErrors.package_description = "Package description is required.";
     if (!currentPackage.price) newErrors.price = "Price is required.";
+    if (!currentPackage.no_of_rooms || currentPackage.no_of_rooms < 1) {
+      newErrors.no_of_rooms = "Number of rooms must be at least 1";
+    }
     if (isNaN(currentPackage.price)) newErrors.price = "Price must be a number.";
     if (currentPackage.inclusions.length === 0) newErrors.inclusions = "At least one inclusion is required.";
     
@@ -419,6 +423,7 @@ const AddHotel = () => {
       package_name: '',
       package_description: '',
       price: '',
+      no_of_rooms: 1, // Reset to 1
       inclusions: [],
       validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
     });
@@ -926,6 +931,30 @@ const AddHotel = () => {
                   />
                   </Grid>
                   <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      margin="normal"
+                      label="Number of Rooms"
+                      variant="outlined"
+                      type="number"
+                      value={currentPackage.no_of_rooms}
+                      onChange={(e) => {
+                        const value = Math.max(1, parseInt(e.target.value) || 1);
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: value });
+                        if (packageErrors.no_of_rooms) {
+                          setPackageErrors(prev => ({ ...prev, no_of_rooms: '' }));
+                        }
+                      }}
+                      error={!!packageErrors.no_of_rooms}
+                      helperText={packageErrors.no_of_rooms}
+                      required
+                      inputProps={{
+                        min: 1,
+                        step: 1
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     margin="normal"
@@ -1042,6 +1071,9 @@ const AddHotel = () => {
                           </Box>
                           <Typography variant="body2" color="textSecondary">
                             Price: ${pkg.price}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Rooms: {pkg.no_of_rooms}
                           </Typography>
                           <Typography variant="body2">
                             {pkg.package_description}

@@ -62,6 +62,7 @@ import Rating from '@material-ui/lab/Rating';
 import { useParams } from 'react-router-dom';
 import MuiAlert from '@material-ui/lab/Alert';
 import HotelReviews from '../Review/HotelReviews';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   rating: {
@@ -139,6 +140,7 @@ const HotelReservationPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState(null);
+  const navigate = useNavigate();
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -299,6 +301,15 @@ const HotelReservationPage = () => {
       </Container>
     );
   }
+
+  const handleBookNow = (pkg) => {
+    navigate('/booking', { 
+      state: { 
+        packageData: pkg,
+        hotelData: hotel
+      }
+    });
+  };
 
   return (
     <Container maxWidth="lg" style={{ padding: '32px 0' }}>
@@ -545,6 +556,7 @@ const HotelReservationPage = () => {
                             color="primary"
                             size="small"
                             className={classes.submitButton}
+                            onClick={() => handleBookNow(pkg)}  // Add this onClick handler
                           >
                             Book Now
                           </Button>

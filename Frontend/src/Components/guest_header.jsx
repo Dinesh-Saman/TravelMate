@@ -17,7 +17,8 @@ import {
   ExitToApp,
   Settings,
   Person,
-  Edit
+  Edit,
+  Book
 } from '@material-ui/icons';
 import './guest_header.css';
 
@@ -242,17 +243,17 @@ const Header = () => {
 
               {loginType === 'user' && (
                 <>
-                  <MenuItem onClick={() => { navigate('/profile'); handleClose(); }}>
-                    <ListItemIcon>
-                      <Person fontSize="small" />
-                    </ListItemIcon>
-                    View Profile
-                  </MenuItem>
                   <MenuItem onClick={() => { navigate('/edit-profile'); handleClose(); }}>
                     <ListItemIcon>
                       <Edit fontSize="small" />
                     </ListItemIcon>
                     Edit Profile
+                  </MenuItem>
+                  <MenuItem onClick={() => { navigate('/my-bookings'); handleClose(); }}>
+                    <ListItemIcon>
+                      <Book fontSize="small" />
+                    </ListItemIcon>
+                    My Bookings
                   </MenuItem>
                   <Divider />
                   <MenuItem onClick={handleLogout} className={classes.logoutItem}>

@@ -596,6 +596,9 @@ const ViewHotels = () => {
                                                   Price: ${pkg.price}
                                                 </Typography>
                                                 <Typography variant="body2" color="textSecondary">
+                                                  No of Rooms: {pkg.no_of_rooms}
+                                                </Typography>
+                                                <Typography variant="body2" color="textSecondary">
                                                   Inclusions: {pkg.inclusions.join(', ')}
                                                 </Typography>
                                                 <Typography variant="body2" color="textSecondary">

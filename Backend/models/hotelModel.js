@@ -61,6 +61,10 @@ const hotelSchema = new Schema({
         type: Number,
         required: true,
       },
+      no_of_rooms: {
+        type: Number,
+        required: true
+      },
       inclusions: {
         type: [String], // Array of strings for inclusions
         required: true,

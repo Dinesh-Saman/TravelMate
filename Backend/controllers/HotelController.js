@@ -34,92 +34,231 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
-class HotelController {
-  // Middleware to handle file uploads
-  static uploadHotelImage = upload.single('hotel_image');
-
-  static async createHotel(req, res) {
-    try {
-      const {
-        hotel_id,
-        hotel_name,
-        address,
-        city,
-        phone_number,
-        email,
-        website,
-        star_rating,
-        description,
-        hotel_packages,
-      } = req.body;
+  class HotelController {
+    static uploadHotelImage = upload.single('hotel_image');
   
-      // Check if the hotel already exists
-      const existingHotel = await Hotel.findOne({ hotel_id });
-      if (existingHotel) {
-        // If file was uploaded, delete it since we're not creating the hotel
-        if (req.file) {
-          fs.unlinkSync(req.file.path);
+    static async createHotel(req, res) {
+      try {
+        const {
+          hotel_id,
+          hotel_name,
+          address,
+          city,
+          phone_number,
+          email,
+          website,
+          star_rating,
+          description,
+          hotel_packages,
+        } = req.body;
+    
+        const existingHotel = await Hotel.findOne({ hotel_id });
+        if (existingHotel) {
+          if (req.file) fs.unlinkSync(req.file.path);
+          return res.status(400).json({ message: 'Hotel with this ID already exists' });
         }
-        return res.status(400).json({ message: 'Hotel with this ID already exists' });
+    
+        let hotel_image = req.body.hotel_image;
+        if (req.file) {
+          hotel_image = `/uploads/hotels/${req.file.filename}`;
+        }
+    
+        let parsedPackages = [];
+        if (hotel_packages) {
+          if (typeof hotel_packages === 'string') {
+            try {
+              parsedPackages = JSON.parse(hotel_packages);
+            } catch (parseError) {
+              if (req.file) fs.unlinkSync(req.file.path);
+              return res.status(400).json({ message: 'Invalid hotel_packages format' });
+            }
+          } else if (Array.isArray(hotel_packages)) {
+            parsedPackages = hotel_packages;
+          }
+  
+          // Validate packages
+          parsedPackages.forEach(pkg => {
+            if (!pkg.no_of_rooms || pkg.no_of_rooms < 1) {
+              throw new Error('Each package must have at least 1 room');
+            }
+          });
+        }
+    
+        const newHotel = new Hotel({
+          hotel_id,
+          hotel_name,
+          address,
+          city,
+          phone_number,
+          email,
+          website,
+          star_rating,
+          description,
+          hotel_image,
+          hotel_packages: parsedPackages,
+        });
+    
+        await newHotel.save();
+        res.status(201).json({ message: 'Hotel created successfully', hotel: newHotel });
+      } catch (error) {
+        if (req.file) fs.unlinkSync(req.file.path);
+        console.error('Error creating hotel:', error);
+        res.status(500).json({ message: 'Error creating hotel', error: error.message });
       }
+    }
   
-      // Handle the hotel image (either from file upload or URL)
-      let hotel_image = req.body.hotel_image;
-  
-      // If a file was uploaded, use its path
-      if (req.file) {
-        // Create URL path for the uploaded image
-        hotel_image = `/uploads/hotels/${req.file.filename}`;
+    static async getAllHotels(req, res) {
+      try {
+        const hotels = await Hotel.find();
+        res.status(200).json({ hotels });
+      } catch (error) {
+        res.status(500).json({ message: 'Error fetching hotels', error: error.message });
       }
+    }
   
-      // Process hotel packages
-      let parsedPackages = [];
-      if (hotel_packages) {
-        // If hotel_packages is a string, try to parse it
-        if (typeof hotel_packages === 'string') {
+    static async getHotelById(req, res) {
+      try {
+        const { id } = req.params;
+        const hotel = await Hotel.findOne({ _id: id });
+  
+        if (!hotel) {
+          return res.status(404).json({ message: 'Hotel not found' });
+        }
+  
+        res.status(200).json({ hotel });
+      } catch (error) {
+        res.status(500).json({ message: 'Error fetching hotel', error: error.message });
+      }
+    }
+  
+    static async updateHotel(req, res) {
+      try {
+        const { id } = req.params;
+        const updateData = { ...req.body };
+  
+        const hotel = await Hotel.findOne({ _id: id });
+        if (!hotel) {
+          if (req.file) fs.unlinkSync(req.file.path);
+          return res.status(404).json({ message: 'Hotel not found' });
+        }
+  
+        if (req.file) {
+          updateData.hotel_image = `/uploads/hotels/${req.file.filename}`;
+          if (hotel.hotel_image && hotel.hotel_image.startsWith('/uploads/')) {
+            const oldImagePath = path.join('public', hotel.hotel_image);
+            if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+          }
+        }
+  
+        if (typeof updateData.hotel_packages === 'string') {
           try {
-            parsedPackages = JSON.parse(hotel_packages);
-          } catch (parseError) {
-            console.error('Error parsing hotel_packages:', parseError);
+            updateData.hotel_packages = JSON.parse(updateData.hotel_packages);
+          } catch (error) {
+            if (req.file) fs.unlinkSync(req.file.path);
             return res.status(400).json({ message: 'Invalid hotel_packages format' });
           }
-        } 
-        // If hotel_packages is already an array, use it directly
-        else if (Array.isArray(hotel_packages)) {
-          parsedPackages = hotel_packages;
         }
-        // Log to help with debugging
-        console.log('Processed packages:', parsedPackages);
+  
+        // Validate packages if they exist in update data
+        if (updateData.hotel_packages) {
+          updateData.hotel_packages.forEach(pkg => {
+            if (!pkg.no_of_rooms || pkg.no_of_rooms < 1) {
+              throw new Error('Each package must have at least 1 room');
+            }
+          });
+        }
+  
+        const updatedHotel = await Hotel.findOneAndUpdate(
+          { _id: id },
+          updateData,
+          { new: true, runValidators: true }
+        );
+  
+        res.status(200).json({ message: 'Hotel updated successfully', hotel: updatedHotel });
+      } catch (error) {
+        if (req.file) fs.unlinkSync(req.file.path);
+        res.status(500).json({ message: 'Error updating hotel', error: error.message });
       }
-  
-      // Create a new hotel
-      const newHotel = new Hotel({
-        hotel_id,
-        hotel_name,
-        address,
-        city,
-        phone_number,
-        email,
-        website,
-        star_rating,
-        description,
-        hotel_image,
-        hotel_packages: parsedPackages, // Use the processed packages
-      });
-  
-      // Save the hotel to the database
-      await newHotel.save();
-  
-      res.status(201).json({ message: 'Hotel created successfully', hotel: newHotel });
-    } catch (error) {
-      // If file was uploaded, delete it on error
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
-      console.error('Error creating hotel:', error);
-      res.status(500).json({ message: 'Error creating hotel', error: error.message });
     }
-  }
+  
+    static async deleteHotel(req, res) {
+      try {
+        const { id } = req.params;
+        const deletedHotel = await Hotel.findOneAndDelete({ _id: id });
+  
+        if (!deletedHotel) {
+          return res.status(404).json({ message: 'Hotel not found' });
+        }
+  
+        if (deletedHotel.hotel_image && deletedHotel.hotel_image.startsWith('/uploads/')) {
+          const imagePath = path.join('public', deletedHotel.hotel_image);
+          if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+        }
+  
+        res.status(200).json({ message: 'Hotel deleted successfully', hotel: deletedHotel });
+      } catch (error) {
+        res.status(500).json({ message: 'Error deleting hotel', error: error.message });
+      }
+    }
+  
+    static async addPackageToHotel(req, res) {
+      try {
+        const { id } = req.params;
+        const newPackage = req.body;
+  
+        // Validate the new package
+        if (!newPackage.no_of_rooms || newPackage.no_of_rooms < 1) {
+          return res.status(400).json({ message: 'Package must have at least 1 room' });
+        }
+  
+        const hotel = await Hotel.findOne({ hotel_id: id });
+        if (!hotel) {
+          return res.status(404).json({ message: 'Hotel not found' });
+        }
+  
+        hotel.hotel_packages.push(newPackage);
+        await hotel.save();
+  
+        res.status(200).json({ message: 'Package added successfully', hotel });
+      } catch (error) {
+        res.status(500).json({ message: 'Error adding package', error: error.message });
+      }
+    }
+  
+    static async removePackageFromHotel(req, res) {
+      try {
+        const { id, packageId } = req.params;
+  
+        const hotel = await Hotel.findOne({ hotel_id: id });
+        if (!hotel) {
+          return res.status(404).json({ message: 'Hotel not found' });
+        }
+  
+        hotel.hotel_packages = hotel.hotel_packages.filter(
+          (pkg) => pkg._id.toString() !== packageId
+        );
+  
+        await hotel.save();
+        res.status(200).json({ message: 'Package removed successfully', hotel });
+      } catch (error) {
+        res.status(500).json({ message: 'Error removing package', error: error.message });
+      }
+    }
+  
+    static async uploadImage(req, res) {
+      try {
+        if (!req.file) {
+          return res.status(400).json({ message: 'No image file provided' });
+        }
+  
+        const imageUrl = `/uploads/hotels/${req.file.filename}`;
+        res.status(200).json({ imageUrl });
+      } catch (error) {
+        if (req.file) fs.unlinkSync(req.file.path);
+        res.status(500).json({ message: 'Error uploading image', error: error.message });
+      }
+    }
+  
 
   // Get all hotels
   static async getAllHotels(req, res) {
@@ -228,7 +367,11 @@ class HotelController {
       const { id } = req.params;
       const newPackage = req.body;
 
-      // Find the hotel and add the package
+      // Validate the new package
+      if (!newPackage.no_of_rooms || newPackage.no_of_rooms < 1) {
+        return res.status(400).json({ message: 'Package must have at least 1 room' });
+      }
+
       const hotel = await Hotel.findOne({ hotel_id: id });
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
@@ -242,6 +385,7 @@ class HotelController {
       res.status(500).json({ message: 'Error adding package', error: error.message });
     }
   }
+
 
   // Remove a package from a hotel
   static async removePackageFromHotel(req, res) {
@@ -288,6 +432,6 @@ class HotelController {
         res.status(500).json({ message: 'Error uploading image', error: error.message });
       }
     }
-}
-
+  }
+  
 module.exports = HotelController;

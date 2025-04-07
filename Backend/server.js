@@ -12,6 +12,7 @@ const UserRoutes = require("./routes/userRoute");
 const HotelRoutes = require("./routes/hotelRoute");
 const DestinationRoutes = require("./routes/destinationRoute");
 const ReviewRoutes = require("./routes/reviewRoute");
+const HotelBookingRoutes = require("./routes/bookingRoute");
 
 //tourpakcage
 const routes = require("./routes/packages")
@@ -35,6 +36,8 @@ app.use("/user", UserRoutes);
 app.use("/hotel", HotelRoutes);  
 app.use("/destination", DestinationRoutes);  
 app.use("/review", ReviewRoutes);  
+app.use("/booking", HotelBookingRoutes);  
+
 //touepackage  
 app.use("/api/package",routes);
 app.use("/api/book", bookingRoutes);

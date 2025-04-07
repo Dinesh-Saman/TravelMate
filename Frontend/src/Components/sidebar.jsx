@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { 
   FaTachometerAlt, FaHotel, FaPlusCircle, 
-  FaFileAlt, FaChartLine, FaSignOutAlt, FaHome 
+  FaFileAlt, FaChartLine, FaSignOutAlt, FaHome, 
+  FaBook
 } from 'react-icons/fa';
 import Logo from '../Images/logo.png';
 
@@ -115,6 +116,12 @@ const Sidebar = () => {
           <MenuItem>
             <Icon><FaFileAlt /></Icon>
             Hotel Report
+          </MenuItem>
+        </Link>
+        <Link to="/view-bookings" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <MenuItem>
+            <Icon><FaBook /></Icon>
+            Bookings
           </MenuItem>
         </Link>
 

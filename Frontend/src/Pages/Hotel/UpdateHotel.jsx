@@ -44,6 +44,7 @@ const UpdateHotel = () => {
     package_name: '',
     package_description: '',
     price: '',
+    no_of_rooms: 1, // Add this line with default value 1
     inclusions: [],
     validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
   });
@@ -81,7 +82,8 @@ const UpdateHotel = () => {
         // Format packages to ensure dates are handled correctly
         const formattedPackages = hotel.hotel_packages.map(pkg => ({
           ...pkg,
-          validity_period: new Date(pkg.validity_period)
+          validity_period: new Date(pkg.validity_period),
+          no_of_rooms: pkg.no_of_rooms 
         }));
         setPackages(formattedPackages);
       }
@@ -311,6 +313,9 @@ const UpdateHotel = () => {
     if (!currentPackage.package_name) newErrors.package_name = "Package name is required.";
     if (!currentPackage.package_description) newErrors.package_description = "Package description is required.";
     if (!currentPackage.price) newErrors.price = "Price is required.";
+    if (!currentPackage.no_of_rooms || currentPackage.no_of_rooms < 1) {
+      newErrors.no_of_rooms = "Number of rooms must be at least 1";
+    }
     if (isNaN(currentPackage.price)) newErrors.price = "Price must be a number.";
     if (currentPackage.inclusions.length === 0) newErrors.inclusions = "At least one inclusion is required.";
     
@@ -373,6 +378,7 @@ const UpdateHotel = () => {
       package_name: '',
       package_description: '',
       price: '',
+      no_of_rooms: '', 
       inclusions: [],
       validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
     });
@@ -931,6 +937,30 @@ const UpdateHotel = () => {
                   <TextField
                     fullWidth
                     margin="normal"
+                    label="Number of Rooms"
+                    variant="outlined"
+                    type="number"
+                    value={currentPackage.no_of_rooms}
+                    onChange={(e) => {
+                      const value = Math.max(1, parseInt(e.target.value));
+                      setCurrentPackage({ ...currentPackage, no_of_rooms: value });
+                      if (packageErrors.no_of_rooms) {
+                        setPackageErrors(prev => ({ ...prev, no_of_rooms: '' }));
+                      }
+                    }}
+                    error={!!packageErrors.no_of_rooms}
+                    helperText={packageErrors.no_of_rooms}
+                    required
+                    inputProps={{
+                      min: 1,
+                      step: 1
+                    }}
+                  />
+                </Grid>
+                  <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    margin="normal"
                     label="Validity Period"
                     type="date"
                     variant="outlined"
@@ -1067,6 +1097,9 @@ const UpdateHotel = () => {
                               </Typography>
                               <Typography variant="body1" style={{ marginTop: '10px' }}>
                                 Price: ${pkg.price}
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary">
+                                Rooms: {pkg.no_of_rooms}
                               </Typography>
                               <Typography variant="body2" color="textSecondary">
                                 Valid until: {new Date(pkg.validity_period).toLocaleDateString()}
