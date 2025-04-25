@@ -116,22 +116,22 @@ const useStyles = makeStyles((theme) => ({
   reviewText: {
     position: 'relative',
     '&:before': {
-      content: '"“"',
-      fontSize: 50,  // Decreased from 80
+      content: '"""',
+      fontSize: 50,
       color: 'rgba(33, 150, 243, 0.1)',
       position: 'absolute',
-      left: -20,     // Adjusted position
-      top: -20,      // Adjusted position
+      left: -20,
+      top: -20,
       fontFamily: 'serif',
       lineHeight: 1,
     },
     '&:after': {
-      content: '"”"',
-      fontSize: 50,  // Decreased from 80
+      content: '"""',
+      fontSize: 50,
       color: 'rgba(18, 88, 145, 0.1)',
       position: 'absolute',
-      right: -10,    // Adjusted position
-      bottom: -30,   // Adjusted position
+      right: -10,
+      bottom: -30,
       fontFamily: 'serif',
       lineHeight: 1,
     },
@@ -178,6 +178,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0.5, 2),
     marginTop: theme.spacing(1),
   },
+  metaContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: theme.spacing(2),
+  },
+  actionButtons: {
+    display: 'flex',
+    marginLeft: theme.spacing(2),
+  },
 }));
 
 function Alert(props) {
@@ -193,7 +203,8 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
     name: currentUser || '',
     rating: 5,
     comment: '',
-    review_id: null
+    review_id: null,
+    _id: null
   });
   
   const [reviews, setReviews] = useState(initialReviews);
@@ -234,8 +245,10 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
 
       let response, endpoint, method;
       
-      if (review.review_id) {
-        endpoint = `http://localhost:3001/reviews/${review.review_id}`;
+      // Check if we're updating an existing review
+      if (review._id) {
+        // Fixed: Use the correct endpoint for updating user reviews
+        endpoint = `http://localhost:3001/review/user-review/${review._id}`;
         method = 'PUT';
       } else {
         endpoint = `http://localhost:3001/review/reviews`;
@@ -255,15 +268,18 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
       
       const data = await response.json();
       
-      if (review.review_id) {
-        setReviews(reviews.map(r => r.review_id === review.review_id ? data.review : r));
+      if (review._id) {
+        // Update the review in the local state
+        setReviews(reviews.map(r => r._id === review._id ? data.review : r));
         setSuccessMessage('Your review was updated successfully! ✨');
       } else {
+        // Add new review to the local state
         setReviews([...reviews, data.review]);
         setSuccessMessage('Thank you for your review! 🌟');
       }
       
-      setReview({ name: currentUser || '', rating: 5, comment: '', review_id: null });
+      // Reset form
+      setReview({ name: currentUser || '', rating: 5, comment: '', review_id: null, _id: null });
       setSnackbarOpen(true);
     } catch (err) {
       setError(err.message || 'Failed to submit review');
@@ -274,25 +290,30 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
   };
 
   const handleEditReview = (reviewToEdit) => {
+    // Store both review_id and _id for proper identification
     setReview({
       name: reviewToEdit.user_name,
       rating: reviewToEdit.rating,
       comment: reviewToEdit.review_text,
-      review_id: reviewToEdit.review_id
+      review_id: reviewToEdit.review_id,
+      _id: reviewToEdit._id
     });
     
     document.getElementById('review-form').scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleDeleteClick = (reviewId) => {
-    setReviewToDelete(reviewId);
+  // FIX: Updated to pass the entire review object instead of just the ID
+  const handleDeleteClick = (review) => {
+    setReviewToDelete(review);
     setDeleteDialogOpen(true);
   };
 
+  // FIX: Updated to use _id for deletion
   const handleDeleteReview = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/reviews/${reviewToDelete}`, {
+      // Use the MongoDB _id for deletion
+      const response = await fetch(`http://localhost:3001/review/reviews/${reviewToDelete._id}`, {
         method: 'DELETE'
       });
 
@@ -301,7 +322,8 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
         throw new Error(errorData.message || 'Failed to delete review');
       }
       
-      setReviews(reviews.filter(r => r.review_id !== reviewToDelete));
+      // Remove the deleted review from state using _id for accurate filtering
+      setReviews(reviews.filter(r => r._id !== reviewToDelete._id));
       setSuccessMessage('Review deleted successfully');
       setSnackbarOpen(true);
     } catch (err) {
@@ -404,7 +426,7 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
       >
         <Paper className={classes.reviewForm} id="review-form">
           <Typography variant="h5" className={classes.sectionTitle} gutterBottom>
-            {review.review_id ? 'Edit Your Review' : 'Share Your Experience'}
+            {review._id ? 'Edit Your Review' : 'Share Your Experience'}
           </Typography>
           
           <form onSubmit={handleReviewSubmit}>
@@ -479,10 +501,10 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
                   >
                     {loading ? (
                       <CircularProgress size={24} color="inherit" />
-                    ) : review.review_id ? 'Update Review' : 'Submit Review'}
+                    ) : review._id ? 'Update Review' : 'Submit Review'}
                   </Button>
                   
-                  {review.review_id && (
+                  {review._id && (
                     <Button
                       variant="text"
                       className={classes.cancelButton}
@@ -490,7 +512,8 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
                         name: currentUser || '', 
                         rating: 5, 
                         comment: '',
-                        review_id: null
+                        review_id: null,
+                        _id: null
                       })}
                       disabled={loading}
                     >
@@ -512,7 +535,7 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
       {reviews.length > 0 ? (
         <List style={{ width: '100%' }}>
           {reviews.map((rev, index) => (
-            <Grow in={true} key={rev.review_id} timeout={index * 200}>
+            <Grow in={true} key={rev._id || rev.review_id} timeout={index * 200}>
               <Paper className={classes.reviewItem}>
                 <ListItem alignItems="flex-start" disableGutters>
                   <ListItemAvatar>
@@ -523,7 +546,7 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
                   <ListItemText
                     primary={
                       <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} justifyContent="space-between">
-                        <Typography variant="subtitle1" style={{ fontWeight: 600, marginLeft:'25px' }}>
+                        <Typography variant="subtitle1" style={{ fontWeight: 600, marginLeft:'35px' }}>
                           {rev.user_name}
                         </Typography>
                         <Rating 
@@ -532,6 +555,7 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
                           size={isMobile ? 'small' : 'medium'}
                           icon={<StarIcon fontSize="inherit" style={{ color: '#FFD700' }} />}
                           emptyIcon={<StarIcon fontSize="inherit" style={{ opacity: 0.55 }} />}
+                          style={{marginRight:'35px'}}
                         />
                       </Box>
                     }
@@ -542,42 +566,49 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
                           variant="body1"
                           color="textPrimary"
                           className={classes.reviewText}
-                          style={{ margin: theme.spacing(2, 0) , marginLeft:'35px'}}
+                          style={{ margin: theme.spacing(2, 0) , marginLeft:'35px', marginRight:'35px'}}
                         >
                           {rev.review_text}
                         </Typography>
-                        <Chip
-                          icon={<Event fontSize="small" />}
-                          label={new Date(rev.review_date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                          className={classes.dateChip}
-                        />
+                        
+                        {/* Modified section: Date and action buttons in one row */}
+                        <Box className={classes.metaContainer}>
+                          <Chip
+                            icon={<Event fontSize="small" />}
+                            label={new Date(rev.review_date || rev.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                            className={classes.dateChip}
+                            style={{marginLeft:'30px'}}
+                          />
+                          
+                          {currentUser && currentUser === rev.user_name && (
+                            <Box className={classes.actionButtons}>
+                              <IconButton 
+                                aria-label="edit" 
+                                onClick={() => handleEditReview(rev)}
+                                className={`${classes.actionButton} ${classes.editButton}`}
+                                size="medium"
+                              >
+                                <Edit fontSize="small" />
+                              </IconButton>
+                              <IconButton 
+                                aria-label="delete" 
+                                onClick={() => handleDeleteClick(rev)}
+                                className={`${classes.actionButton} ${classes.deleteButton}`}
+                                size="medium"
+                              >
+                                <Delete fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          )}
+                        </Box>
                       </React.Fragment>
                     }
                   />
                 </ListItem>
-                
-                {currentUser && currentUser === rev.user_name && (
-                  <Box display="flex" justifyContent="flex-end" mt={2}>
-                    <IconButton 
-                      aria-label="edit" 
-                      onClick={() => handleEditReview(rev)}
-                      className={`${classes.actionButton} ${classes.editButton}`}
-                    >
-                      <Edit fontSize={isMobile ? 'default' : 'large'} />
-                    </IconButton>
-                    <IconButton 
-                      aria-label="delete" 
-                      onClick={() => handleDeleteClick(rev.review_id)}
-                      className={`${classes.actionButton} ${classes.deleteButton}`}
-                    >
-                      <Delete fontSize={isMobile ? 'default' : 'large'} />
-                    </IconButton>
-                  </Box>
-                )}
               </Paper>
             </Grow>
           ))}

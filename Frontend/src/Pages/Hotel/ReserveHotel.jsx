@@ -439,48 +439,6 @@ const HotelReservationPage = () => {
               </Box>
               
               <Divider style={{ margin: '16px 0' }} />
-              
-              <Box>
-                <Typography variant="h6" gutterBottom>Facilities & Amenities</Typography>
-                <Box style={{ display: 'flex', flexWrap: 'wrap' }}>
-                  <Chip
-                    icon={<Wifi />}
-                    label="Free WiFi"
-                    variant="outlined"
-                    className={classes.amenityChip}
-                  />
-                  <Chip
-                    icon={<Pool />}
-                    label="Swimming Pool"
-                    variant="outlined"
-                    className={classes.amenityChip}
-                  />
-                  <Chip
-                    icon={<Restaurant />}
-                    label="Restaurant"
-                    variant="outlined"
-                    className={classes.amenityChip}
-                  />
-                  <Chip
-                    icon={<LocalParking />}
-                    label="Free Parking"
-                    variant="outlined"
-                    className={classes.amenityChip}
-                  />
-                  <Chip
-                    icon={<FitnessCenter />}
-                    label="Fitness Center"
-                    variant="outlined"
-                    className={classes.amenityChip}
-                  />
-                  <Chip
-                    icon={<RoomService />}
-                    label="Room Service"
-                    variant="outlined"
-                    className={classes.amenityChip}
-                  />
-                </Box>
-              </Box>
             </CardContent>
           </Grid>
         </Grid>
@@ -498,16 +456,66 @@ const HotelReservationPage = () => {
           </AccordionSummary>
           <AccordionDetails>
             {hotel.hotel_packages && hotel.hotel_packages.length > 0 ? (
-              <TableContainer component={Paper}>
-                <Table style={{ minWidth: 650 }} aria-label="hotel packages table">
-                  <TableHead className={classes.packageTableHead}>
+              <TableContainer 
+                component={Paper}
+                style={{ 
+                  borderRadius: 12,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  overflow: 'hidden'
+                }}
+              >
+                <Table style={{ minWidth: 800 }} aria-label="hotel packages table">
+                  <TableHead 
+                    className={classes.packageTableHead}
+                    style={{ backgroundColor: '#E4D00A'}}
+                  >
                     <TableRow>
-                      <TableCell style={{ fontWeight: 'bold' }}>Package</TableCell>
-                      <TableCell style={{ fontWeight: 'bold' }}>Description</TableCell>
-                      <TableCell align="center" style={{ fontWeight: 'bold' }}>Price</TableCell>
-                      <TableCell style={{ fontWeight: 'bold' }}>Inclusions</TableCell>
-                      <TableCell align="center" style={{ fontWeight: 'bold' }}>Validity</TableCell>
-                      <TableCell align="center" style={{ fontWeight: 'bold' }}>Action</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '15%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a'
+                      }}>Package</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '25%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a'
+                      }}>Description</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '8%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a',
+                        textAlign: 'center'
+                      }}>Rooms</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '15%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a',
+                        textAlign: 'center'
+                      }}>Price</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '20%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a'
+                      }}>Inclusions</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '10%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a',
+                        textAlign: 'center'
+                      }}>Validity</TableCell>
+                      <TableCell style={{ 
+                        fontWeight: 'bold', 
+                        width: '7%',
+                        fontSize: '0.875rem',
+                        color: '#3a3a3a',
+                        textAlign: 'center'
+                      }}>Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -515,48 +523,155 @@ const HotelReservationPage = () => {
                       <TableRow
                         key={index}
                         hover
-                        style={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        style={{ 
+                          '&:last-child td, &:last-child th': { border: 0 },
+                          backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafc'
+                        }}
                       >
-                        <TableCell component="th" scope="row" style={{ fontWeight: 500 }}>
+                        <TableCell 
+                          component="th" 
+                          scope="row" 
+                          style={{ 
+                            fontWeight: 600,
+                            color: '#2c3e50',
+                            fontSize: '0.875rem'
+                          }}
+                        >
                           {pkg.package_name}
                         </TableCell>
-                        <TableCell style={{ color: 'textSecondary' }}>{pkg.package_description}</TableCell>
-                        <TableCell align="center">
-                          <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <h4 style={{marginRight:'4px'}}>Rs</h4>
-                            <Typography variant="body1" style={{ fontWeight: 'bold' }}>
+                        <TableCell style={{ color: '#6b7280' }}>
+                          <Typography 
+                            style={{ 
+                              maxWidth: '300px',
+                              fontSize: '0.875rem',
+                              lineHeight: '1.4'
+                            }}
+                          >
+                            {pkg.package_description}
+                          </Typography>
+                        </TableCell>
+                        <TableCell style={{ textAlign: 'center' }}>
+                          <Typography 
+                            variant="body1" 
+                            style={{ 
+                              fontWeight: 'bold',
+                              color: '#3b82f6',
+                              fontSize: '1.5rem'
+                            }}
+                          >
+                            {pkg.no_of_rooms}
+                          </Typography>
+                        </TableCell>
+                        <TableCell style={{ textAlign: 'center' }}>
+                          <Box style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            flexDirection: 'column'
+                          }}>
+                            <Typography 
+                              variant="body1" 
+                              style={{ 
+                                fontWeight: 'bold',
+                                color: '#10b981',
+                                fontSize: '1.5rem',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <span style={{ 
+                                fontSize: '0.9rem',
+                                marginRight: 4,
+                                color: '#6b7280'
+                              }}>Rs</span>
                               {pkg.price.toLocaleString()}
                             </Typography>
-                            <Typography variant="caption" style={{ marginLeft: 4 }}>/night</Typography>
+                            <Typography 
+                              variant="caption" 
+                              style={{ 
+                                color: '#9ca3af',
+                                fontSize: '0.7rem'
+                              }}
+                            >
+                              per night
+                            </Typography>
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <List dense>
+                          <List dense disablePadding>
                             {pkg.inclusions.map((inc, i) => (
-                              <ListItem key={i} disableGutters>
-                                <ListItemAvatar style={{ minWidth: 32 }}>
-                                  <CheckCircle color="primary" fontSize="small" />
+                              <ListItem 
+                                key={i} 
+                                disableGutters
+                                style={{ padding: '4px 0' }}
+                              >
+                                <ListItemAvatar style={{ minWidth: 28 }}>
+                                  <CheckCircle 
+                                    style={{ 
+                                      color: '#10b981',
+                                      fontSize: '1rem'
+                                    }} 
+                                  />
                                 </ListItemAvatar>
-                                <ListItemText primary={inc} />
+                                <ListItemText 
+                                  primary={
+                                    <Typography 
+                                      style={{ 
+                                        fontSize: '0.875rem',
+                                        color: '#4b5563'
+                                      }}
+                                    >
+                                      {inc}
+                                    </Typography>
+                                  } 
+                                />
                               </ListItem>
                             ))}
                           </List>
                         </TableCell>
-                        <TableCell align="center">
-                          <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Event color="action" style={{ marginRight: 8 }} />
-                            <Typography variant="body2">
+                        <TableCell style={{ textAlign: 'center' }}>
+                          <Box style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            flexDirection: 'column'
+                          }}>
+                            <Event 
+                              style={{ 
+                                color: '#8b5cf6',
+                                fontSize: '1.5rem',
+                                marginBottom: 4
+                              }} 
+                            />
+                            <Typography 
+                              variant="body2"
+                              style={{ 
+                                fontSize: '1rem',
+                                color: '#6b7280'
+                              }}
+                            >
                               {new Date(pkg.validity_period).toLocaleDateString()}
                             </Typography>
                           </Box>
                         </TableCell>
-                        <TableCell align="center">
+                        <TableCell style={{ textAlign: 'center' }}>
                           <Button 
                             variant="contained" 
                             color="primary"
-                            size="small"
-                            className={classes.submitButton}
-                            onClick={() => handleBookNow(pkg)}  // Add this onClick handler
+                            size="medium"
+                            style={{
+                              borderRadius: 8,
+                              textTransform: 'none',
+                              fontWeight: 500,
+                              fontSize: '0.8rem',
+                              padding: '6px 12px',
+                              boxShadow: 'none',
+                              backgroundColor: '#3b82f6',
+                              '&:hover': {
+                                backgroundColor: '#2563eb'
+                              }
+                            }}
+                            onClick={() => handleBookNow(pkg)}
                           >
                             Book Now
                           </Button>
@@ -567,9 +682,25 @@ const HotelReservationPage = () => {
                 </Table>
               </TableContainer>
             ) : (
-              <Typography variant="body1" color="textSecondary">
-                No packages available at this time.
-              </Typography>
+              <Box 
+                style={{ 
+                  width: '100%',
+                  padding: 24,
+                  textAlign: 'center',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: 12
+                }}
+              >
+                <Typography 
+                  variant="body1" 
+                  style={{ 
+                    color: '#64748b',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  No packages available at this time.
+                </Typography>
+              </Box>
             )}
           </AccordionDetails>
         </Accordion>

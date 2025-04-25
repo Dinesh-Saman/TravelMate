@@ -410,7 +410,6 @@ const ViewBookings = () => {
                   <TableCell className={classes.tableHeadCell}>User</TableCell>
                   <TableCell className={classes.tableHeadCell}>Hotel</TableCell>
                   <TableCell className={classes.tableHeadCell}>Package</TableCell>
-                  <TableCell className={classes.tableHeadCell}>Dates</TableCell>
                   <TableCell className={classes.tableHeadCell}>Amount</TableCell>
                   <TableCell className={classes.tableHeadCell}>Status</TableCell>
                   <TableCell className={classes.tableHeadCell}>Actions</TableCell>
@@ -445,22 +444,6 @@ const ViewBookings = () => {
                         </Box>
                       </TableCell>
                       <TableCell>{booking.package}</TableCell>
-                      <TableCell>
-                        <Box display="flex" flexDirection="column">
-                          <Box display="flex" alignItems="center">
-                            <CalendarTodayIcon fontSize="small" style={{ marginRight: 4 }} />
-                            <Typography variant="body2">
-                              {formatDate(booking.booking_from)}
-                            </Typography>
-                          </Box>
-                          <Box display="flex" alignItems="center">
-                            <CalendarTodayIcon fontSize="small" style={{ marginRight: 4 }} />
-                            <Typography variant="body2">
-                              {formatDate(booking.booking_to)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
                       <TableCell className={classes.amountText}>
                         {formatCurrency(booking.payment?.amount || booking.price * booking.no_of_rooms)}
                       </TableCell>

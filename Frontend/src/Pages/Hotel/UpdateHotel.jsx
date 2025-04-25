@@ -46,7 +46,7 @@ const UpdateHotel = () => {
     price: '',
     no_of_rooms: 1, // Add this line with default value 1
     inclusions: [],
-    validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
+    validity_period: new Date(new Date().setMonth(new Date().getMonth()))
   });
   const [inclusion, setInclusion] = useState('');
   const [packageErrors, setPackageErrors] = useState({});
@@ -124,10 +124,9 @@ const UpdateHotel = () => {
         imageUrl: "Hotel image URL is required"
       }));
       return false;
-    } else if (!value.startsWith('https://')) {
+    } else if (!value.startsWith('')) {
       setErrors(prevErrors => ({
         ...prevErrors,
-        imageUrl: "Image URL must start with https://"
       }));
       return false;
     } else {
@@ -361,7 +360,7 @@ const UpdateHotel = () => {
     let updatedPackage = { ...currentPackage };
     
     if (!updatedPackage.validity_period) {
-      updatedPackage.validity_period = new Date(new Date().setMonth(new Date().getMonth() + 3));
+      updatedPackage.validity_period = new Date(new Date().setMonth(new Date().getMonth()));
     }
     
     setCurrentPackage(updatedPackage);
@@ -380,7 +379,7 @@ const UpdateHotel = () => {
       price: '',
       no_of_rooms: '', 
       inclusions: [],
-      validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
+      validity_period: new Date(new Date().setMonth(new Date().getMonth()))
     });
     setPackageErrors({});
   };
@@ -500,9 +499,7 @@ const UpdateHotel = () => {
     // Image validation
     if (useImageUrl && !hotelImage) {
       newErrors.hotelImage = "Hotel Image URL is required.";
-    } else if (useImageUrl && !hotelImage.startsWith('https://')) {
-      newErrors.hotelImage = "Image URL must start with https://";
-    } else if (!useImageUrl && !uploadedImage && !hotelImage) {
+    }  else if (!useImageUrl && !uploadedImage && !hotelImage) {
       newErrors.hotelImage = "Please upload an image or provide a URL.";
     }
     
@@ -773,7 +770,7 @@ const UpdateHotel = () => {
                 >
                   {hotelImage ? (
                     <img
-                      src={hotelImage.startsWith('http') ? hotelImage : `http://localhost:3001${hotelImage}`}
+                      src={hotelImage ? hotelImage : `http://localhost:3001${hotelImage}`}
                       alt="Hotel Preview"
                       style={{
                         width: '100%',
@@ -812,7 +809,7 @@ const UpdateHotel = () => {
                       value={imageUrl}
                       onChange={handleImageUrlChange}
                       onBlur={handleImageUrlBlur}
-                      helperText={errors.imageUrl || "URL must start with https://"}
+                      helperText={errors.imageUrl}
                       error={!!errors.imageUrl}
                       required
                       placeholder="https://example.com/image.jpg"
@@ -902,11 +899,18 @@ const UpdateHotel = () => {
                     margin="normal"
                     label="Price"
                     variant="outlined"
-                    type="number"
+                    type="text"  // Changed from "number" to "text"
                     value={currentPackage.price}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      // Only update if value is empty or a valid number less than or equal to 1,000,000
+                      let value = e.target.value;
+                      // Allow only numbers and a single decimal point
+                      value = value.replace(/[^0-9.]/g, '');
+                      // Ensure only one decimal point
+                      const parts = value.split('.');
+                      if (parts.length > 2) {
+                        value = parts[0] + '.' + parts.slice(1).join('');
+                      }
+                      // Update only if valid
                       if (value === '' || (Number(value) > 0 && Number(value) <= 1000000)) {
                         setCurrentPackage({ ...currentPackage, price: value });
                         if (packageErrors.price) {
@@ -915,7 +919,6 @@ const UpdateHotel = () => {
                       }
                     }}
                     onBlur={() => {
-                      // Validate on blur
                       if (currentPackage.price && Number(currentPackage.price) > 1000000) {
                         setPackageErrors(prev => ({ 
                           ...prev, 
@@ -927,9 +930,8 @@ const UpdateHotel = () => {
                     helperText={packageErrors.price || "Maximum: 1,000,000"}
                     required
                     inputProps={{
-                      min: 0,
-                      max: 1000000,
-                      step: "0.01" // Allows decimal values if needed
+                      inputMode: "decimal",  // Shows numeric keyboard on mobile
+                      pattern: "[0-9.]*",   // Helps with HTML5 validation (optional)
                     }}
                   />
                   </Grid>
@@ -942,18 +944,46 @@ const UpdateHotel = () => {
                     type="number"
                     value={currentPackage.no_of_rooms}
                     onChange={(e) => {
-                      const value = Math.max(1, parseInt(e.target.value));
-                      setCurrentPackage({ ...currentPackage, no_of_rooms: value });
+                      const inputValue = e.target.value;
+                      
+                      // Allow empty value during editing
+                      if (inputValue === '') {
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: '' });
+                        return;
+                      }
+                      
+                      // Validate only when there's actual input
+                      const numericValue = parseInt(inputValue, 10);
+                      if (!isNaN(numericValue)) {
+                        const clampedValue = Math.min(1000, Math.max(1, numericValue));
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: clampedValue });
+                      }
+                      
+                      // Clear any existing errors
                       if (packageErrors.no_of_rooms) {
                         setPackageErrors(prev => ({ ...prev, no_of_rooms: '' }));
                       }
                     }}
+                    onBlur={() => {
+                      // Set default to 1 when empty
+                      if (currentPackage.no_of_rooms === '') {
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: 1 });
+                      }
+                      // Validate max value
+                      else if (currentPackage.no_of_rooms > 1000) {
+                        setPackageErrors(prev => ({ 
+                          ...prev, 
+                          no_of_rooms: "Number of rooms cannot exceed 1000" 
+                        }));
+                      }
+                    }}
                     error={!!packageErrors.no_of_rooms}
-                    helperText={packageErrors.no_of_rooms}
+                    helperText={packageErrors.no_of_rooms || "Maximum 1000 Rooms Allowed."}
                     required
                     inputProps={{
                       min: 1,
-                      step: 1
+                      max: 1000,
+                      step: 1,
                     }}
                   />
                 </Grid>
@@ -967,7 +997,7 @@ const UpdateHotel = () => {
                     value={
                       currentPackage.validity_period
                         ? new Date(currentPackage.validity_period).toISOString().split("T")[0]
-                        : new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split("T")[0]
+                        : new Date(new Date().setMonth(new Date().getMonth())).toISOString().split("T")[0]
                     }
                     onChange={(e) => {
                       const selectedDate = new Date(e.target.value);
@@ -978,7 +1008,7 @@ const UpdateHotel = () => {
                         // Revert to previous valid date if user tries to select a past date
                         setCurrentPackage({ 
                           ...currentPackage, 
-                          validity_period: currentPackage.validity_period || new Date(new Date().setMonth(new Date().getMonth() + 3))
+                          validity_period: currentPackage.validity_period || new Date(new Date().setMonth(new Date().getMonth()))
                         });
                         setPackageErrors((prev) => ({ 
                           ...prev, 

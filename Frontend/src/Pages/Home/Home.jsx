@@ -345,15 +345,15 @@ const Home = () => {
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card className={classes.featureCard} elevation={3}>
                 <img 
-        src={feature.image} 
-        alt={feature.title}
-        style={{ 
-          width: '380px', 
-          height: '415px', 
-          marginBottom: '16px',
-          objectFit: 'contain' 
-        }} 
-      />
+                  src={feature.image} 
+                  alt={feature.title}
+                  style={{ 
+                    width: '380px', 
+                    height: '415px', 
+                    marginBottom: '16px',
+                    objectFit: 'contain' 
+                  }} 
+                />
                   <Typography variant="h6" gutterBottom style={{ fontWeight: 'bold' }}>
                     {feature.title}
                   </Typography>

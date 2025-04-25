@@ -11,6 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({ email: false, password: false });
   const navigate = useNavigate();
 
   // Validate email format
@@ -23,12 +24,33 @@ const Login = () => {
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
+    
+    // Only validate if the field has been touched already
+    if (touched.email) {
+      if (value && !validateEmail(value)) {
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          email: "Invalid email format"
+        }));
+      } else {
+        setErrors(prevErrors => ({ ...prevErrors, email: '' }));
+      }
+    }
+  };
 
-    // Real-time validation for email
-    if (value && !validateEmail(value)) {
+  // Handle email blur (when user clicks outside)
+  const handleEmailBlur = () => {
+    setTouched(prev => ({ ...prev, email: true }));
+    
+    if (email && !validateEmail(email)) {
       setErrors(prevErrors => ({
         ...prevErrors,
         email: "Invalid email format"
+      }));
+    } else if (!email) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        email: "Email is required"
       }));
     } else {
       setErrors(prevErrors => ({ ...prevErrors, email: '' }));
@@ -38,7 +60,29 @@ const Login = () => {
   // Handle password change
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    setErrors(prevErrors => ({ ...prevErrors, password: '' }));
+    
+    // Only validate if the field has been touched already
+    if (touched.password) {
+      if (!e.target.value) {
+        setErrors(prevErrors => ({ ...prevErrors, password: 'Password is required' }));
+      } else {
+        setErrors(prevErrors => ({ ...prevErrors, password: '' }));
+      }
+    }
+  };
+  
+  // Handle password blur
+  const handlePasswordBlur = () => {
+    setTouched(prev => ({ ...prev, password: true }));
+    
+    if (!password) {
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        password: "Password is required"
+      }));
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, password: '' }));
+    }
   };
 
   // Validate the login form
@@ -50,78 +94,90 @@ const Login = () => {
     return newErrors;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-  
-    // Check if admin credentials are entered
-    if (email === "admin@gmail.com" && password === "admin") {
-      localStorage.setItem("username", "Admin");
-      localStorage.setItem("userEmail", email);
-      
-      // Dispatch login event
-      window.dispatchEvent(new CustomEvent('loginUpdate', {
-        detail: { username: "Admin", email }
-      }));
-      
-      swal("Success", "Logged in as Admin!", "success");
-      navigate("/dashboard");
-      return;
-    }
-  
-    try {
-      const response = await axios.post('http://localhost:3001/user/login', {
+// In your Login component's handleSubmit function:
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const validationErrors = validateForm();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    setTouched({ email: true, password: true });
+    return;
+  }
+
+  // Check if admin credentials are entered
+  if (email === "admin@gmail.com" && password === "admin") {
+    localStorage.setItem("username", "Admin");
+    localStorage.setItem("userEmail", email);
+    
+    window.dispatchEvent(new CustomEvent('loginUpdate', {
+      detail: { 
+        username: "Admin", 
         email,
-        password
-      });
-  
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        if (response.data.user) {
-          console.log(response.data.user);
-          const fullName = response.data.user.full_name || '';
-          const firstName = fullName.split(' ')[0];
-          localStorage.setItem('username', firstName);
-          localStorage.setItem('userEmail', response.data.user.email || '');
-          localStorage.setItem('userId', response.data.user.id || '');
-          
-          // Dispatch login event
-          window.dispatchEvent(new CustomEvent('loginUpdate', {
-            detail: { username: firstName, email: response.data.user.email }
-          }));
+        profilePicture: "https://www.w3schools.com/howto/img_avatar.png" // Default admin avatar
+      }
+    }));
+    
+    swal("Success", "Logged in as Admin!", "success");
+    navigate("/dashboard");
+    return;
+  }
+
+  try {
+    const response = await axios.post('http://localhost:3001/user/login', {
+      email,
+      password
+    });
+
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      if (response.data.user) {
+        const fullName = response.data.user.full_name || '';
+        const firstName = fullName.split(' ')[0];
+        localStorage.setItem('username', firstName);
+        localStorage.setItem('userEmail', response.data.user.email || '');
+        localStorage.setItem('userId', response.data.user.id || '');
+        
+        // Store profile picture URL if available
+        if (response.data.user.profile_picture) {
+          localStorage.setItem('profilePicture', response.data.user.profile_picture);
         }
         
-        swal("Success", "Logged in successfully!", "success");
-        navigate('/');
-  
-        // Set timeout to clear local storage after 1 hour
-        setTimeout(() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          localStorage.removeItem('userEmail');
-          localStorage.removeItem('userId');
-          window.dispatchEvent(new CustomEvent('loginUpdate', {
-            detail: { username: 'User', email: '' }
-          }));
-          swal("Session Expired", "Please login again.", "warning");
-          navigate('/login');
-        }, 3600000);
+        // Dispatch login event with profile picture
+        window.dispatchEvent(new CustomEvent('loginUpdate', {
+          detail: { 
+            username: firstName, 
+            email: response.data.user.email,
+            profilePicture: response.data.user.profile_picture 
+          }
+        }));
       }
-    } catch (error) {
-      console.error(error);
-      if (error.response && error.response.status === 401) {
-        swal("Error", "Invalid email or password", "error");
-      } else {
-        swal("Error", "Something went wrong. Please try again.", "error");
-      }
+      
+      swal("Success", "Logged in successfully!", "success");
+      navigate('/');
+
+      // Set timeout to clear local storage after 1 hour
+      setTimeout(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('profilePicture');
+        window.dispatchEvent(new CustomEvent('loginUpdate', {
+          detail: { username: 'User', email: '', profilePicture: '' }
+        }));
+        swal("Session Expired", "Please login again.", "warning");
+        navigate('/login');
+      }, 3600000);
     }
-  };
-  
-  
+  } catch (error) {
+    console.error(error);
+    if (error.response && error.response.status === 401) {
+      swal("Error", "Invalid email or password", "error");
+    } else {
+      swal("Error", "Something went wrong. Please try again.", "error");
+    }
+  }
+};
 
   return (
     <Box
@@ -171,6 +227,7 @@ const Login = () => {
             variant="outlined"
             value={email}
             onChange={handleEmailChange}
+            onBlur={handleEmailBlur}
             helperText={errors.email}
             error={!!errors.email}
             required
@@ -184,6 +241,7 @@ const Login = () => {
             variant="outlined"
             value={password}
             onChange={handlePasswordChange}
+            onBlur={handlePasswordBlur}
             helperText={errors.password}
             error={!!errors.password}
             required

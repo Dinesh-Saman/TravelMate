@@ -174,10 +174,10 @@ const useStyles = makeStyles((theme) => ({
   infoLabel: {
     fontWeight: 'bold',
     color: theme.palette.text.secondary,
-    minWidth: 120,
+    minWidth: 90,
   },
   infoValue: {
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   },
   actionButton: {
     margin: theme.spacing(0.5),

@@ -24,7 +24,7 @@ class ReviewController {
         user_name,
         rating,
         review_text,
-        review_status: 'pending', // Default status
+        review_status: 'approved', // Default status
       });
 
       await newReview.save();
@@ -209,6 +209,64 @@ class ReviewController {
     } catch (error) {
       res.status(500).json({ 
         message: 'Error calculating average rating', 
+        error: error.message 
+      });
+    }
+  }
+
+  // Update a user's own review (only rating and review_text)
+  static async updateUserReview(req, res) {
+    try {
+      const { id } = req.params;
+      const { rating, review_text } = req.body;
+      
+      // Validate input
+      if (!rating && !review_text) {
+        return res.status(400).json({ 
+          message: 'At least one field (rating or review_text) must be provided for update' 
+        });
+      }
+      
+      // Create update object with only allowed fields
+      const updateData = {};
+      if (rating !== undefined) {
+        // Validate rating
+        if (rating < 1 || rating > 5) {
+          return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+        }
+        updateData.rating = rating;
+      }
+      
+      if (review_text !== undefined) {
+        updateData.review_text = review_text;
+      }
+      
+      // Reset review status to pending if content is changed
+      updateData.review_status = 'approved';
+      
+      // Find and update the review
+      const updatedReview = await Review.findOneAndUpdate(
+        { 
+          $or: [
+            { _id: id },
+            { review_id: id }
+          ]
+        },
+        updateData,
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedReview) {
+        return res.status(404).json({ message: 'Review not found' });
+      }
+
+      res.status(200).json({ 
+        message: 'Your review has been updated and will be visible after approval', 
+        review: updatedReview 
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: 'Error updating review', 
         error: error.message 
       });
     }

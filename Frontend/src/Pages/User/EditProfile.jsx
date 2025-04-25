@@ -59,6 +59,12 @@ const EditProfile = () => {
     fetchUserData();
   }, []);
 
+  // Function to extract first name from full name
+  const getFirstName = (name) => {
+    if (!name) return '';
+    return name.split(' ')[0];
+  };
+
   // Validate contact number (10 digits)
   const validateContact = (value) => {
     const contactRegex = /^\d{10}$/;
@@ -192,6 +198,32 @@ const EditProfile = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Get first name for storage and display
+      const firstName = getFirstName(fullName);
+      
+      // Store first name in localStorage instead of full name
+      localStorage.setItem('username', firstName);
+      
+      // Store email
+      localStorage.setItem('userEmail', email);
+      
+      // Store profile picture in localStorage
+      if (profilePicture) {
+        localStorage.setItem('profilePicture', profilePicture);
+      } else {
+        localStorage.removeItem('profilePicture');
+      }
+      
+      // Dispatch custom event with first name and profile picture for header display
+      window.dispatchEvent(new CustomEvent('loginUpdate', {
+        detail: { 
+          username: firstName, 
+          email: email,
+          profilePicture: profilePicture,
+          fullName: fullName // Keep full name available if needed elsewhere
+        }
+      }));
+
       swal('Success', 'Profile updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -239,32 +271,27 @@ const EditProfile = () => {
           Edit Profile
         </Typography>
 
-        {/* Profile Picture Section - Added at the top */}
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          mb={4}
+        {/* Profile Picture Section - Added this section */}
+        <Box 
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: '30px'
+          }}
         >
-          <Typography variant="subtitle1" gutterBottom>
-            Profile Picture
-          </Typography>
+          <Avatar
+            src={profilePicturePreview}
+            style={{
+              width: 120,
+              height: 120,
+              border: '3px solid #e0e0e0',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+              marginBottom: '16px'
+            }}
+            alt={fullName || "Profile"}
+          />
           
-          {/* Profile Picture Preview */}
-          <Box mb={2}>
-            <Avatar
-              src={profilePicturePreview}
-              style={{
-                width: 150,
-                height: 150,
-                border: '2px solid #e0e0e0',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-              alt={fullName || "Profile"}
-            />
-          </Box>
-          
-          {/* Upload and Remove Buttons */}
           <Box display="flex" alignItems="center">
             <input
               accept="image/*"
@@ -287,30 +314,31 @@ const EditProfile = () => {
             </label>
             
             {profilePicturePreview && (
-              <IconButton
+              <Button
+                variant="outlined"
                 color="secondary"
+                startIcon={<DeleteIcon />}
                 onClick={handleRemoveProfilePicture}
                 size="small"
               >
-                <DeleteIcon />
-              </IconButton>
+                Remove
+              </Button>
             )}
           </Box>
           
-          {/* Error Message */}
-          {errors.profilePicture && (
-            <Typography
-              variant="caption"
-              color="error"
-              style={{ marginTop: 8 }}
-            >
-              {errors.profilePicture}
+          <Box mt={1}>
+            <Typography variant="caption" style={{ color: '#666' }}>
+              Profile Picture
+              {errors.profilePicture && (
+                <Typography variant="caption" color="error" display="block">
+                  {errors.profilePicture}
+                </Typography>
+              )}
             </Typography>
-          )}
-          
-          <Typography variant="caption" style={{ marginTop: 8, color: '#666' }}>
-            Recommended: Square image, JPG or PNG, max 2MB
-          </Typography>
+            <Typography variant="caption" style={{ color: '#666', display: 'block' }}>
+              Recommended: Square image, JPG or PNG, max 2MB
+            </Typography>
+          </Box>
         </Box>
 
         {/* Form Section */}
@@ -345,8 +373,28 @@ const EditProfile = () => {
             label="Contact Number"
             variant="outlined"
             value={contact}
-            onChange={handleContactChange}
-            helperText={errors.contact}
+            onChange={(e) => {
+              // Only allow numeric digits
+              const numericValue = e.target.value.replace(/[^0-9]/g, '');
+              
+              // Limit to 10 digits
+              const truncatedValue = numericValue.slice(0, 10);
+              
+              // Call your original handler with the sanitized value
+              handleContactChange({
+                ...e,
+                target: {
+                  ...e.target,
+                  value: truncatedValue
+                }
+              });
+            }}
+            inputProps={{
+              maxLength: 10,
+              pattern: "[0-9]*",
+              inputMode: "numeric"
+            }}
+            helperText={errors.contact || "Enter 10-digit number"}
             error={!!errors.contact}
             required
           />
@@ -394,41 +442,20 @@ const EditProfile = () => {
             <FormHelperText>{errors.gender}</FormHelperText>
           </FormControl>
 
-          {/* Optional Password Fields */}
-          <Typography variant="subtitle1" style={{ marginTop: 16 }}>
-            Change Password (Optional)
-          </Typography>
-
-          <TextField
-            fullWidth
-            margin="normal"
-            label="New Password"
-            type="password"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            helperText="Leave blank to keep current password"
-          />
-
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Confirm New Password"
-            type="password"
-            variant="outlined"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            helperText={errors.confirmPassword}
-            error={!!errors.confirmPassword}
-          />
-
           <Button
             fullWidth
             variant="contained"
             color="primary"
             size="large"
             type="submit"
-            style={{ marginTop: 25 }}
+            style={{
+              marginTop: 25,
+              padding: '12px', 
+              fontSize: '1rem',
+              fontWeight: 600,
+              borderRadius: '50px',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+            }}
           >
             Update Profile
           </Button>

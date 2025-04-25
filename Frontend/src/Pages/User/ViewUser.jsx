@@ -279,7 +279,7 @@ const ViewUsers = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/users/${id}`);
+        await axios.delete(`http://localhost:3001/user/users/${id}`);
         setUserData(userData.filter(user => user._id !== id));
         
         Swal.fire({

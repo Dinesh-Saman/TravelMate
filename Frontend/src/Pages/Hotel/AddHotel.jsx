@@ -39,7 +39,7 @@ const AddHotel = () => {
     price: '',
     no_of_rooms: 1, // Default to 1 room
     inclusions: [],
-    validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
+    validity_period: new Date(new Date().setMonth(new Date().getMonth()))
   });
   const [inclusion, setInclusion] = useState('');
   const [packageErrors, setPackageErrors] = useState({});
@@ -75,7 +75,7 @@ const AddHotel = () => {
       // Validate image
       let imageValid = false;
       if (useImageUrl) {
-        imageValid = hotelImage.startsWith('https://');
+        imageValid = hotelImage;
       } else {
         imageValid = uploadedImage !== null;
       }
@@ -126,13 +126,8 @@ const AddHotel = () => {
         hotelImage: "Hotel image URL is required"
       }));
       return false;
-    } else if (!value.startsWith('https://')) {
-      setErrors(prevErrors => ({
-        ...prevErrors,
-        hotelImage: "Image URL must start with https://"
-      }));
-      return false;
-    } else {
+    }
+       else {
       setErrors(prevErrors => ({ ...prevErrors, hotelImage: '' }));
       return true;
     }
@@ -359,9 +354,6 @@ const AddHotel = () => {
       if (!hotelImage) {
         newErrors.hotelImage = "Image URL is required";
         isValid = false;
-      } else if (!hotelImage.startsWith('https://')) {
-        newErrors.hotelImage = "Image URL must start with https://";
-        isValid = false;
       }
     } else {
       if (!uploadedImage) {
@@ -406,7 +398,7 @@ const AddHotel = () => {
     let updatedPackage = { ...currentPackage };
     
     if (!updatedPackage.validity_period) {
-      updatedPackage.validity_period = new Date(new Date().setMonth(new Date().getMonth() + 3));
+      updatedPackage.validity_period = new Date(new Date().setMonth(new Date().getMonth()));
     }
     
     setCurrentPackage(updatedPackage);
@@ -425,7 +417,7 @@ const AddHotel = () => {
       price: '',
       no_of_rooms: 1, // Reset to 1
       inclusions: [],
-      validity_period: new Date(new Date().setMonth(new Date().getMonth() + 3))
+      validity_period: new Date(new Date().setMonth(new Date().getMonth()))
     });
     setPackageErrors({});
   };
@@ -812,7 +804,7 @@ const AddHotel = () => {
                       value={hotelImage}
                       onChange={handleImageUrlChange}
                       onBlur={handleImageUrlBlur}
-                      helperText={errors.hotelImage || "URL must start with https://"}
+                      helperText={errors.hotelImage}
                       error={!!errors.hotelImage}
                       required
                       placeholder="https://example.com/image.jpg"
@@ -904,55 +896,88 @@ const AddHotel = () => {
                     type="number"
                     value={currentPackage.price}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || (Number(value) >= 0 && Number(value) <= 10000000)) {
+                      const value = e.target.value.replace(/[+-]/g, '');
+                      if (value === '' || (Number(value) > 0 && Number(value) <= 10000000)) {
                         setCurrentPackage({ ...currentPackage, price: value });
                         if (packageErrors.price) {
                           setPackageErrors(prev => ({ ...prev, price: '' }));
                         }
                       }
                     }}
+                    onKeyDown={(e) => {
+                      if (['+', '-', 'e', 'E'].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     onBlur={() => {
-                      if (currentPackage.price && Number(currentPackage.price) > 10000000) {
-                        setPackageErrors(prev => ({ 
-                          ...prev, 
-                          price: "Price cannot exceed 10,000,000" 
-                        }));
+                      if (!currentPackage.price || Number(currentPackage.price) <= 0) {
+                        setPackageErrors(prev => ({ ...prev, price: "Price must be greater than 0" }));
+                      } else if (Number(currentPackage.price) > 10000000) {
+                        setPackageErrors(prev => ({ ...prev, price: "Price cannot exceed 10,000,000" }));
                       }
                     }}
                     error={!!packageErrors.price}
-                    helperText={packageErrors.price || "Maximum: 10,000,000"}
+                    helperText={packageErrors.price || "Maximum: Rs 1000000"}
                     required
                     inputProps={{
-                      min: 0,
+                      min: 0.01,
                       max: 10000000,
-                      step: "0.01"
+                      step: "0.01",
+                      pattern: "[0-9]*",
+                      inputMode: "numeric"
                     }}
                   />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="Number of Rooms"
-                      variant="outlined"
-                      type="number"
-                      value={currentPackage.no_of_rooms}
-                      onChange={(e) => {
-                        const value = Math.max(1, parseInt(e.target.value) || 1);
-                        setCurrentPackage({ ...currentPackage, no_of_rooms: value });
-                        if (packageErrors.no_of_rooms) {
-                          setPackageErrors(prev => ({ ...prev, no_of_rooms: '' }));
-                        }
-                      }}
-                      error={!!packageErrors.no_of_rooms}
-                      helperText={packageErrors.no_of_rooms}
-                      required
-                      inputProps={{
-                        min: 1,
-                        step: 1
-                      }}
-                    />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Number of Rooms"
+                    variant="outlined"
+                    type="number"
+                    value={currentPackage.no_of_rooms}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      
+                      // Allow empty value during editing
+                      if (inputValue === '') {
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: '' });
+                        return;
+                      }
+                      
+                      // Only validate numbers when actually entered
+                      const numericValue = parseInt(inputValue);
+                      if (!isNaN(numericValue)) {
+                        const clampedValue = Math.min(1000, Math.max(1, numericValue));
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: clampedValue });
+                      }
+                      
+                      if (packageErrors.no_of_rooms) {
+                        setPackageErrors(prev => ({ ...prev, no_of_rooms: '' }));
+                      }
+                    }}
+                    onBlur={() => {
+                      // Set default to 1 when empty
+                      if (currentPackage.no_of_rooms === '') {
+                        setCurrentPackage({ ...currentPackage, no_of_rooms: 1 });
+                      }
+                      // Validate max value
+                      else if (currentPackage.no_of_rooms > 1000) {
+                        setPackageErrors(prev => ({ 
+                          ...prev, 
+                          no_of_rooms: "Number of rooms cannot exceed 1000" 
+                        }));
+                      }
+                    }}
+                    error={!!packageErrors.no_of_rooms}
+                    helperText={packageErrors.no_of_rooms || "Maximum 1000 Rooms Allowed."}
+                    required
+                    inputProps={{
+                      min: 1,
+                      max: 1000,
+                      step: 1,
+                    }}
+                  />
                   </Grid>
                   <Grid item xs={12} sm={6}>
                   <TextField
@@ -965,7 +990,7 @@ const AddHotel = () => {
                     value={
                       currentPackage.validity_period
                         ? new Date(currentPackage.validity_period).toISOString().split('T')[0]
-                        : new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]
+                        : new Date(new Date().setMonth(new Date().getMonth())).toISOString().split('T')[0]
                     }
                     onChange={(e) => {
                       const selectedDate = e.target.value ? new Date(e.target.value) : null;
@@ -976,7 +1001,7 @@ const AddHotel = () => {
                         setCurrentPackage({
                           ...currentPackage,
                           validity_period: currentPackage.validity_period || 
-                            new Date(new Date().setMonth(new Date().getMonth() + 3))
+                            new Date(new Date().setMonth(new Date().getMonth()))
                         });
                         setPackageErrors(prev => ({
                           ...prev,

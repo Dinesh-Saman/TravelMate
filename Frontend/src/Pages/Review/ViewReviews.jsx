@@ -3,10 +3,10 @@ import axios from 'axios';
 import { 
   Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Paper, TextField, MenuItem, FormControl, Select, InputLabel, TablePagination, 
-  Avatar, Chip, IconButton, Grid, Button
+  Avatar, Chip, IconButton, Grid, Button, Collapse, Card, CardContent, CardHeader, Divider
 } from '@material-ui/core';
 import Swal from 'sweetalert2';
-import Sidebar from '../../Components/sidebar';
+import Sidebar from '../../Components/user_sidebar';
 import { makeStyles } from '@material-ui/core/styles';
 import Rating from '@material-ui/lab/Rating';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -14,6 +14,10 @@ import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
 import EventIcon from '@material-ui/icons/Event';
 import HotelIcon from '@material-ui/icons/Hotel';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import PersonIcon from '@material-ui/icons/Person';
+import MessageIcon from '@material-ui/icons/Message';
+import StarIcon from '@material-ui/icons/Star';
 
 const useStyles = makeStyles((theme) => ({
   contentContainer: {
@@ -120,6 +124,70 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     color: theme.palette.primary.main,
   },
+  expandButton: {
+    transition: 'all 0.3s ease',
+  },
+  detailsContainer: {
+    padding: theme.spacing(3),
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    margin: theme.spacing(2, 0),
+    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+  },
+  reviewCard: {
+    height: '100%',
+    boxShadow: '0 3px 10px rgba(0,0,0,0.08)',
+    borderRadius: 8,
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 6px 15px rgba(0,0,0,0.1)',
+    },
+  },
+  cardHeader: {
+    backgroundColor: theme.palette.primary.main,
+    color: 'white',
+    padding: theme.spacing(1.5),
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  cardHeaderReview: {
+    backgroundColor: '#1976d2',
+  },
+  cardHeaderHotel: {
+    backgroundColor: '#43a047',
+  },
+  cardHeaderUser: {
+    backgroundColor: '#7b1fa2',
+  },
+  cardIcon: {
+    marginRight: theme.spacing(1),
+    color: 'white',
+  },
+  infoRow: {
+    display: 'flex',
+    alignItems: 'center',
+    margin: theme.spacing(1.5, 0),
+    '& svg': {
+      marginRight: theme.spacing(1),
+      color: theme.palette.primary.main,
+    },
+  },
+  infoLabel: {
+    fontWeight: 'bold',
+    color: theme.palette.text.secondary,
+    minWidth: 120,
+  },
+  infoValue: {
+    color: theme.palette.text.primary,
+  },
+  reviewContent: {
+    backgroundColor: '#f9f9f9',
+    padding: theme.spacing(2),
+    borderRadius: 8,
+    margin: theme.spacing(2, 0),
+    borderLeft: `4px solid ${theme.palette.primary.main}`,
+  },
 }));
 
 const ViewReviews = () => {
@@ -128,7 +196,8 @@ const ViewReviews = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("review_id");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   useEffect(() => {
     const fetchReviewData = async () => {
@@ -242,6 +311,10 @@ const ViewReviews = () => {
     setPage(newPage);
   };
 
+  const handleExpandRow = (id) => {
+    setExpandedRow(expandedRow === id ? null : id);
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -288,7 +361,7 @@ const ViewReviews = () => {
             marginBottom={3}
           >
             <Typography variant="h4" gutterBottom style={{ marginBottom: '20px', fontFamily: 'cursive', fontWeight: 'bold', color: 'purple', textAlign: 'center' }}>
-              Reviews Management
+              Review Management
             </Typography>
             <Box display="flex" alignItems="center">
               <FormControl className={classes.criteriaSelect}>
@@ -318,83 +391,138 @@ const ViewReviews = () => {
             <Table>
               <TableHead>
                 <TableRow className={classes.tableHeadRow}>
+                  <TableCell className={classes.tableHeadCell}></TableCell>
                   <TableCell className={classes.tableHeadCell}>Review ID</TableCell>
                   <TableCell className={classes.tableHeadCell}>Hotel</TableCell>
                   <TableCell className={classes.tableHeadCell}>User</TableCell>
                   <TableCell className={classes.tableHeadCell}>Rating</TableCell>
-                  <TableCell className={classes.tableHeadCell}>Review</TableCell>
-                  <TableCell className={classes.tableHeadCell}>Date</TableCell>
+                  <TableCell className={classes.tableHeadCell}>Posted On</TableCell>
                   <TableCell className={classes.tableHeadCell}>Status</TableCell>
                   <TableCell className={classes.tableHeadCell}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedReviews.map((review) => (
-                  <TableRow key={review._id} className={classes.tableRow}>
-                    <TableCell>{review.review_id}</TableCell>
-                    <TableCell>
-                      <div className={classes.hotelCell}>
-                        <HotelIcon className={classes.hotelIcon} />
-                        {review.hotel_name || 'Unknown Hotel'}
-                      </div>
-                    </TableCell>
-                    <TableCell>{review.user_name}</TableCell>
-                    <TableCell>
-                      <Rating 
-                        value={review.rating} 
-                        readOnly 
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {review.review_text}
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" alignItems="center">
-                        <EventIcon fontSize="small" style={{ marginRight: '5px' }} />
-                        {formatDate(review.review_date || review.createdAt)}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={review.review_status} 
-                        className={getStatusClass(review.review_status)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex">
-                        {review.review_status !== 'approved' && (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            className={`${classes.actionButton} ${classes.approveButton}`}
-                            onClick={() => handleStatusChange(review._id, 'approved')}
-                          >
-                            <CheckIcon fontSize="small" />
-                          </Button>
-                        )}
-                        {review.review_status !== 'rejected' && (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            className={`${classes.actionButton} ${classes.rejectButton}`}
-                            onClick={() => handleStatusChange(review._id, 'rejected')}
-                          >
-                            <CloseIcon fontSize="small" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="contained"
-                          size="small"
-                          className={`${classes.actionButton} ${classes.deleteButton}`}
-                          onClick={() => handleDelete(review._id)}
+                  <React.Fragment key={review._id}>
+                    <TableRow className={classes.tableRow}>
+                      <TableCell>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleExpandRow(review._id)}
+                          className={classes.expandButton}
+                          style={{ transform: expandedRow === review._id ? 'rotate(180deg)' : 'rotate(0deg)' }}
                         >
-                          <DeleteIcon fontSize="small" />
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                          <ExpandMoreIcon />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>{review.review_id}</TableCell>
+                      <TableCell>
+                        <div className={classes.hotelCell}>
+                          <HotelIcon className={classes.hotelIcon} />
+                          {review.hotel_name || 'Unknown Hotel'}
+                        </div>
+                      </TableCell>
+                      <TableCell>{review.user_name}</TableCell>
+                      <TableCell>
+                        <Rating 
+                          value={review.rating} 
+                          readOnly 
+                          size="small"
+                          icon={<StarIcon fontSize="inherit" />}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" alignItems="center">
+                          {formatDate(review.review_date || review.createdAt)}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={review.review_status} 
+                          className={getStatusClass(review.review_status)}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex">
+                          {review.review_status !== 'approved' && (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              className={`${classes.actionButton} ${classes.approveButton}`}
+                              onClick={() => handleStatusChange(review._id, 'approved')}
+                            >
+                              <CheckIcon fontSize="small" />
+                            </Button>
+                          )}
+                          {review.review_status !== 'rejected' && (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              className={`${classes.actionButton} ${classes.rejectButton}`}
+                              onClick={() => handleStatusChange(review._id, 'rejected')}
+                            >
+                              <CloseIcon fontSize="small" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="contained"
+                            size="small"
+                            className={`${classes.actionButton} ${classes.deleteButton}`}
+                            onClick={() => handleDelete(review._id)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+                        <Collapse in={expandedRow === review._id} timeout="auto" unmountOnExit>
+                          <Box className={classes.detailsContainer}>
+                            <Grid container spacing={3}>
+                              {/* Review Content Card */}
+                              <Grid item xs={12}>
+                                <Card className={classes.reviewCard}>
+                                  <CardHeader
+                                    className={`${classes.cardHeader} ${classes.cardHeaderReview}`}
+                                    avatar={<MessageIcon className={classes.cardIcon} />}
+                                    title="Review Content"
+                                    titleTypographyProps={{ variant: 'subtitle1' }}
+                                    disableTypography={false}
+                                  />
+                                  <CardContent>
+                                    <Box className={classes.reviewContent}>
+                                      <Typography variant="body1">
+                                        {review.review_text || "No review content provided."}
+                                      </Typography>
+                                    </Box>
+                                    <Box className={classes.infoRow}>
+                                      <StarIcon fontSize="small" />
+                                      <Typography className={classes.infoLabel}>Rating:</Typography>
+                                      <Rating 
+                                        value={review.rating} 
+                                        readOnly 
+                                        icon={<StarIcon fontSize="inherit" />}
+                                      />
+                                    </Box>
+                                    <Divider light />
+                                    <Box className={classes.infoRow}>
+                                      <EventIcon fontSize="small" />
+                                      <Typography className={classes.infoLabel}>Posted On:</Typography>
+                                      <Typography className={classes.infoValue}>
+                                        {formatDate(review.review_date || review.createdAt)}
+                                      </Typography>
+                                    </Box>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

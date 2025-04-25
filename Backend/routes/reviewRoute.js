@@ -15,6 +15,9 @@ router.get('/reviews/:id', ReviewController.getReviewById);
 // Update a review status (typically admin-only)
 router.put('/reviews/:id', ReviewController.updateReview);
 
+// Update a review status (logged in user only)
+router.put('/user-review/:id', ReviewController.updateUserReview);
+
 // Delete a review
 router.delete('/reviews/:id', ReviewController.deleteReview);
 
