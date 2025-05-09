@@ -1,5 +1,5 @@
 {
-  "name": "ananthaya_resort",
+  "name": "travelmate",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -39,6 +39,7 @@
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.17.2",
     "sweetalert2-react-content": "^5.1.0",
+    "travelmate": "file:",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
   },

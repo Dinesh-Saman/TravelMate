@@ -36,6 +36,7 @@ import UserBookingsPage from './Pages/Booking/UserBookings';
 import AllHotelsPage from './Pages/Hotel/AllHotels';
 import ViewAllDestinationsPage from './Pages/Destination/AllDestinations';
 import DestinationDetails from './Pages/Destination/DestinationDetails';
+import PackingReportGenerator from './Pages/PackingReport/PackingReportGenerator';
 
 function App() {
   return (
@@ -85,6 +86,9 @@ function App() {
           <Route path="/packagedetails" element={<PackageDetails />} />
           <Route path="/admin/travel" element={<TravelManagement />} />
           <Route path="/admin/bookings" element={<AdminBookings/>} />
+
+          {/* <Route path="/AIgenaration" element={<PackingReportGenerator/>} /> */}
+          <Route path="/packing-list" element={<PackingReportGenerator/>} />
 
         </Routes>
         <Footer></Footer>

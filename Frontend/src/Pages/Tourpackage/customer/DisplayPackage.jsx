@@ -56,7 +56,7 @@ const DisplayPackage = () => {
 
       <div className="package-package-list">
         {filteredCards.map((card) => (
-          <div key={card._id} className="package-package-card">
+          <div key={card._id} className="package-package-card" >
             {card.image && <img src={card.image} alt={card.name} className="package-card-image" />}
             <h2>{card.name}</h2>
             <p className="package-card-price">Price: Rs{card.price}</p>

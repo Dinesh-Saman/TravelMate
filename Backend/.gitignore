@@ -24,3 +24,4 @@ yarn-error.log*
 
 # images
 /public/uploads
+.vercel

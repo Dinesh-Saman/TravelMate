@@ -249,6 +249,13 @@ const AllHotelsPage = () => {
     applyFilters();
   }, [searchTerm, priceRange, selectedCities, selectedAmenities, selectedRatings, hotels]);
 
+  useEffect(() => {
+    if (hotels.length > 0) {
+      const [min, max] = getMinMaxPrices();
+      setPriceRange([min, max]);
+    }
+  }, [hotels]);
+
   const applyFilters = () => {
     let results = [...hotels];
 
@@ -448,17 +455,19 @@ const AllHotelsPage = () => {
       <Typography variant="subtitle1" gutterBottom>
         Price Range
       </Typography>
-      <div className={classes.sliderContainer}>
-        <Slider
-          value={priceRange}
-          onChange={handlePriceChange}
-          valueLabelDisplay="auto"
-          aria-labelledby="range-slider"
-          min={minPrice}
-          max={maxPrice}
-          valueLabelFormat={(value) => `$${value}`}
-        />
-        <Box display="flex" justifyContent="space-between">
+            <div className={classes.sliderContainer}>
+            {minPrice !== undefined && maxPrice !== undefined && (
+              <Slider
+                value={priceRange}
+                onChange={handlePriceChange}
+                valueLabelDisplay="auto"
+                aria-labelledby="range-slider"
+                min={minPrice}
+                max={maxPrice}
+                valueLabelFormat={(value) => `$${value}`}
+              />
+            )}
+              <Box display="flex" justifyContent="space-between">
           <Typography variant="caption">${priceRange[0]}</Typography>
           <Typography variant="caption">${priceRange[1]}</Typography>
         </Box>

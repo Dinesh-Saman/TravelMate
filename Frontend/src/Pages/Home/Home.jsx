@@ -30,6 +30,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import RecentHotels from '../Hotel/RecentHotels'; 
 import RecentPackages from '../Tourpackage/customer/RecentPackages';
 import TrendingDestinations from '../Destination/TrendingDestinations';
+import PackagingBar from '../PackingReport/PackagingBar';
 
 const useStyles = makeStyles((theme) => ({
   heroSection: {
@@ -369,6 +370,7 @@ const Home = () => {
 
       <RecentHotels />
       <TrendingDestinations />
+      <PackagingBar/>
       <RecentPackages />
 
       {/* About Section */}
