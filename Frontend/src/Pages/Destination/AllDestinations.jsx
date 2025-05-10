@@ -364,7 +364,7 @@ const ViewAllDestinationsPage = () => {
   useEffect(() => {
     const fetchAllDestinations = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/destination/get-destinations');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/get-destinations');
         setDestinations(response.data.destinations);
         setFilteredDestinations(response.data.destinations);
         

@@ -123,15 +123,15 @@ const VehicleDashboard = () => {
     const fetchVehicleData = async () => {
       try {
         // Fetch vehicle type counts
-        const typeResponse = await axios.get('http://localhost:3001/vehicle/type-counts');
+        const typeResponse = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/type-counts');
         setVehicleTypes(typeResponse.data);
 
         // Fetch status counts
-        const statusResponse = await axios.get('http://localhost:3001/vehicle/status-counts');
+        const statusResponse = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/status-counts');
         setStatusCounts(statusResponse.data);
 
         // Fetch all vehicles to get total count
-        const vehiclesResponse = await axios.get('http://localhost:3001/vehicle/get-vehicles');
+        const vehiclesResponse = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/get-vehicles');
         setTotalVehicles(vehiclesResponse.data.length);
       } catch (error) {
         console.error('Error fetching vehicle data:', error);

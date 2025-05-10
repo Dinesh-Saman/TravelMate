@@ -414,7 +414,7 @@ const ViewDestinations = () => {
   useEffect(() => {
     const fetchDestinationData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/destination/get-destinations');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/get-destinations');
         
         if (Array.isArray(response.data)) {
           setDestinationData(response.data);
@@ -454,7 +454,7 @@ const ViewDestinations = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/destination/delete-destination/${id}`);
+        await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/delete-destination/${id}`);
         setDestinationData(destinationData.filter(destination => destination._id !== id));
         
         Swal.fire({

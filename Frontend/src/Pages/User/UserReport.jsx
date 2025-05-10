@@ -30,7 +30,7 @@ const UserReportPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/user/users');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/users');
         
         if (Array.isArray(response.data)) {
           setUsers(response.data);

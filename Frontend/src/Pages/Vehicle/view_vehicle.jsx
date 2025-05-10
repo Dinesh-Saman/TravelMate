@@ -72,7 +72,7 @@ const ViewVehicle = () => {
   useEffect(() => {
     const fetchVehicleData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/vehicle/get-vehicles');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/get-vehicles');
         setVehicleData(response.data);
       } catch (error) {
         console.error("There was an error fetching the vehicle data!", error);
@@ -99,7 +99,7 @@ const ViewVehicle = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3001/vehicle/delete-vehicle/${id}`);
+          await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/delete-vehicle/${id}`);
           setVehicleData(vehicleData.filter(vehicle => vehicle._id !== id));
           Swal.fire("Deleted!", "The vehicle record has been deleted.", "success");
         } catch (error) {

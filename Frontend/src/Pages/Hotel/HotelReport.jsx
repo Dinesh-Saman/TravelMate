@@ -30,7 +30,7 @@ const HotelReportPage = () => {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/hotel/get-hotels');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/get-hotels');
         
         if (Array.isArray(response.data)) {
           setHotels(response.data);

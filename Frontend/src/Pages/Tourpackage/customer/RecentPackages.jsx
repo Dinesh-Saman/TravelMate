@@ -87,7 +87,7 @@ const RecentPackages = () => {
   useEffect(() => {
     const fetchRecentPackages = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/package');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/package');
         // Sort packages by creation date and take the first 4
         const sortedPackages = response.data
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -155,7 +155,7 @@ const RecentPackages = () => {
                     {pkg.location}
                   </Typography>
                   <Typography className={classes.price}>
-                    ${pkg.price.toLocaleString()}
+                    Rs {pkg.price.toLocaleString()}
                   </Typography>
                 </CardContent>
               </Card>

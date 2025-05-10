@@ -206,7 +206,7 @@ const UserBookingsPage = () => {
 
   const fetchBookingData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/booking/user/${username}`);
+      const response = await axios.get(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/booking/user/${username}`);
       
       // Handle different response formats
       let bookings = [];
@@ -239,7 +239,7 @@ const UserBookingsPage = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/booking/${id}`);
+        await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/booking/${id}`);
         
         // Update the local state
         setBookingData(bookingData.map(booking => 

@@ -202,7 +202,7 @@ const ViewReviews = () => {
   useEffect(() => {
     const fetchReviewData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/review/reviews');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/reviews');
         
         // Handle different response formats
         let reviews = [];
@@ -250,7 +250,7 @@ const ViewReviews = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/review/reviews/${id}`);
+        await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/reviews/${id}`);
         setReviewData(reviewData.filter(review => review._id !== id));
         
         Swal.fire({
@@ -273,7 +273,7 @@ const ViewReviews = () => {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const response = await axios.put(`http://localhost:3001/review/reviews/${id}`, {
+      const response = await axios.put(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/reviews/${id}`, {
         review_status: newStatus
       });
 

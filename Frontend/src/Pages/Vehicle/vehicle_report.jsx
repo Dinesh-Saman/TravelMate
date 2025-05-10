@@ -29,7 +29,7 @@ const VehicleReportPage = () => {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/vehicle/get-vehicles');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/get-vehicles');
         setVehicles(response.data);
         setLoading(false);
       } catch (error) {

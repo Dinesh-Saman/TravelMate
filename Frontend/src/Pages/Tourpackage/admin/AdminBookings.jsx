@@ -20,7 +20,7 @@ const AdminBookings = () => {
     const fetchAllBookings = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:3001/api/book');
+            const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/book');
             setBookings(response.data);
             setFilteredBookings(response.data); 
             setLoading(false);
@@ -100,7 +100,7 @@ const AdminBookings = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this booking?')) {
             try {
-                await axios.delete(`http://localhost:3001/api/book/${id}`);
+                await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/book/${id}`);
                 fetchAllBookings();
             } catch (err) {
                 console.error('Error deleting booking:', err);

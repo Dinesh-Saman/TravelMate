@@ -214,7 +214,7 @@ const AddUser = () => {
 
     try {
       // Create the user
-      await axios.post('http://localhost:3001/user/register', newUser);
+      await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/register', newUser);
 
       swal("Success", "User added successfully!", "success");
 

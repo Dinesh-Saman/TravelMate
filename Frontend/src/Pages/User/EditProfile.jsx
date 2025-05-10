@@ -30,7 +30,7 @@ const EditProfile = () => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3001/user/profile', {
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -194,7 +194,7 @@ const EditProfile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:3001/user/profile', updatedUser, {
+      await axios.put('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/profile', updatedUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

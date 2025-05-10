@@ -119,7 +119,7 @@ const UpdateVehicle = () => {
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/vehicle/get-vehicle/${id}`);
+        const response = await axios.get(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/get-vehicle/${id}`);
         const { registrationNumber, make, model, year, fuelType, vehicleType, color, status } = response.data;
         setRegistrationNumber(registrationNumber);
         setMake(make);
@@ -224,7 +224,7 @@ const UpdateVehicle = () => {
     };
 
     try {
-      await axios.put(`http://localhost:3001/vehicle/update-vehicle/${id}`, updatedVehicle);
+      await axios.put(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/update-vehicle/${id}`, updatedVehicle);
       swal("Success", "Vehicle updated successfully!", "success");
       navigate('/view-vehicle');
     } catch (error) {

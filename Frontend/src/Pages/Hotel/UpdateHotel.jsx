@@ -60,7 +60,7 @@ const UpdateHotel = () => {
   const fetchHotelData = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`http://localhost:3001/hotel/hotels/${id}`);
+      const response = await axios.get(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/hotels/${id}`);
       const hotel = response.data.hotel;
       
       // Populate form fields with hotel data
@@ -268,7 +268,7 @@ const UpdateHotel = () => {
       formData.append('image', file);
 
       try {
-        const response = await axios.post('http://localhost:3001/hotel/upload', formData, {
+        const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -414,7 +414,7 @@ const UpdateHotel = () => {
         const formData = new FormData();
         formData.append('image', uploadedImage);
         
-        const uploadResponse = await axios.post('http://localhost:3001/hotel/upload', formData, {
+        const uploadResponse = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -444,7 +444,7 @@ const UpdateHotel = () => {
       };
   
       // Send PUT request to update hotel
-      const response = await axios.put(`http://localhost:3001/hotel/hotels/${id}`, updatedHotel);
+      const response = await axios.put(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/hotels/${id}`, updatedHotel);
       
       swal("Success", "Hotel updated successfully!", "success");
     } catch (error) {

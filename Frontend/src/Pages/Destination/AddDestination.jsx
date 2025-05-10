@@ -268,7 +268,7 @@ const timeOptions = [
         destination_contact: destinationContact
       };
       
-      const response = await axios.post('http://localhost:3001/destination/add-destination', destinationData, {
+      const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/add-destination', destinationData, {
         headers: {
           'Content-Type': 'application/json'
         }

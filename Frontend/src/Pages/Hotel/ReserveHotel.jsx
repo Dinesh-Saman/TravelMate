@@ -160,7 +160,7 @@ const HotelReservationPage = () => {
         setLoading(true);
         
         // Fetch hotel data
-        const hotelResponse = await fetch(`http://localhost:3001/hotel/hotels/${id}`);
+        const hotelResponse = await fetch(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/hotels/${id}`);
         if (!hotelResponse.ok) throw new Error('Failed to fetch hotel data');
         const hotelData = await hotelResponse.json();
         setHotel(hotelData.hotel || hotelData);
@@ -197,11 +197,11 @@ const HotelReservationPage = () => {
       
       if (review.review_id) {
         // Update existing review
-        endpoint = `http://localhost:3001/reviews/${review.review_id}`;
+        endpoint = `https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/reviews/${review.review_id}`;
         method = 'PUT';
       } else {
         // Create new review
-        endpoint = `http://localhost:3001/review/reviews`;
+        endpoint = `https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/reviews`;
         method = 'POST';
       }
 
@@ -265,7 +265,7 @@ const HotelReservationPage = () => {
 
   const handleDeleteReview = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/reviews/${reviewToDelete}`, {
+      const response = await fetch(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/reviews/${reviewToDelete}`, {
         method: 'DELETE'
       });
 

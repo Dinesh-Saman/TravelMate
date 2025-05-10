@@ -73,7 +73,7 @@ const UpdateDestination = () => {
   useEffect(() => {
     const fetchDestination = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/destination/destinations/${id}`);
+        const response = await axios.get(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/destinations/${id}`);
         const destination = response.data.destination;
         
         setDestinationId(destination.destination_id || '');
@@ -293,7 +293,7 @@ const UpdateDestination = () => {
         climate: climate
       };
       
-      const response = await axios.put(`http://localhost:3001/destination/update-destination/${id}`, destinationData, {
+      const response = await axios.put(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/update-destination/${id}`, destinationData, {
         headers: {
           'Content-Type': 'application/json'
         }

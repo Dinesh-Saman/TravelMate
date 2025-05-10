@@ -252,7 +252,7 @@ const AddHotel = () => {
       formData.append('image', file);
 
       try {
-        const response = await axios.post('http://localhost:3001/hotel/upload', formData, {
+        const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -443,7 +443,7 @@ const AddHotel = () => {
         const formData = new FormData();
         formData.append('image', uploadedImage);
         
-        const uploadResponse = await axios.post('http://localhost:3001/hotel/upload', formData, {
+        const uploadResponse = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -471,7 +471,7 @@ const AddHotel = () => {
         hotel_packages: formattedPackages,
       };
   
-      const response = await axios.post('http://localhost:3001/hotel/add-hotel', newHotel);
+      const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/add-hotel', newHotel);
       
       swal("Success", "New hotel added successfully!", "success");
       // Reset form fields

@@ -236,20 +236,6 @@ const Home = () => {
             
             <Box display="flex" justifyContent="center" gap={2} mt={4}>
               <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={() => navigate('/login')}
-                style={{
-                  padding: '12px 30px',
-                  fontWeight: 'bold',
-                  borderRadius: '50px',
-                  marginRight:'25px'
-                }}
-              >
-                Login
-              </Button>
-              <Button
                 variant="outlined"
                 color="primary"
                 size="large"

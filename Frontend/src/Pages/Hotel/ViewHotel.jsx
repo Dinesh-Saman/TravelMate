@@ -215,7 +215,7 @@ const ViewHotels = () => {
   useEffect(() => {
     const fetchHotelData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/hotel/get-hotels');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/get-hotels');
         
         if (Array.isArray(response.data)) {
           setHotelData(response.data);
@@ -255,7 +255,7 @@ const ViewHotels = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/hotel/delete-hotel/${id}`);
+        await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/delete-hotel/${id}`);
         setHotelData(hotelData.filter(hotel => hotel._id !== id));
         
         Swal.fire({

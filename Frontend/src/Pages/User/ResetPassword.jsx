@@ -33,7 +33,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post(`http://localhost:3001/user/reset-password/${token}`, { password });
+      await axios.post(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/reset-password/${token}`, { password });
       swal("Success", "Password reset successfully!", "success")
         .then(() => navigate('/login'));
     } catch (error) {

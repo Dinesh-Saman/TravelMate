@@ -85,7 +85,7 @@ const RecentHotels = () => {
   useEffect(() => {
     const fetchRecentHotels = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/hotel/get-hotels');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/get-hotels');
         // Sort hotels by creation date and take the first 4
         const sortedHotels = response.data.hotels
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
