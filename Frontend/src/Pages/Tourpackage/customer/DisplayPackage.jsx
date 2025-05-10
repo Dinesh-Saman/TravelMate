@@ -12,7 +12,7 @@ const DisplayPackage = () => {
   useEffect(() => {
     const fetchCardData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/package');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/package');
         if (Array.isArray(response.data)) {
           setCardData(response.data);
         } else {

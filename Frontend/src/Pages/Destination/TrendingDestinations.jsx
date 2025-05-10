@@ -101,7 +101,7 @@ const TrendingDestinations = () => {
     const fetchTrendingDestinations = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:3001/destination/get-destinations');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/get-destinations');
         // Take the first 5 destinations sorted by rating (descending)
         const topDestinations = response.data.destinations
           .sort((a, b) => b.destination_rating - a.destination_rating)

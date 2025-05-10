@@ -223,7 +223,7 @@ const AllHotelsPage = () => {
   useEffect(() => {
     const fetchAllHotels = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/hotel/get-hotels');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/hotel/get-hotels');
         setHotels(response.data.hotels);
         setFilteredHotels(response.data.hotels);
         

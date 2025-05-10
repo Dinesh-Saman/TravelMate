@@ -198,7 +198,7 @@ const AddVehicle = () => {
     };
 
     try {
-      await axios.post('http://localhost:3001/vehicle/add-vehicle', newVehicle);
+      await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/add-vehicle', newVehicle);
       swal("Success", "New vehicle added successfully!", "success");
       setRegistrationNumber('');
       setMake('');

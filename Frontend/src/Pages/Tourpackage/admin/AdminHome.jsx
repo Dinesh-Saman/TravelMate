@@ -25,7 +25,7 @@ const AdminHome = () => {
 
   // Fetch packages function
   const fetchPackages = () => {
-    axios.get('http://localhost:3001/api/package')
+    axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/package')
       .then(response => {
         if (Array.isArray(response.data)) {
           setPackages(response.data);
@@ -104,7 +104,7 @@ const AdminHome = () => {
       return;
     }
 
-    axios.post('http://localhost:3001/api/package', newPackage)
+    axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/package', newPackage)
       .then(response => {
         setPackages(prevPackages => [...prevPackages, response.data]);
         setShowForm(false);
@@ -128,7 +128,7 @@ const AdminHome = () => {
       return;
     }
 
-    axios.put(`http://localhost:3001/api/package/${editPackage._id}`, editPackage)
+    axios.put(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/package/${editPackage._id}`, editPackage)
       .then(response => {
         setPackages(prevPackages =>
           prevPackages.map(pkg => pkg._id === editPackage._id ? response.data : pkg)
@@ -143,7 +143,7 @@ const AdminHome = () => {
     const confirmDelete = window.confirm('Are you sure you want to delete this package?');
 
     if (confirmDelete) {
-      axios.delete(`http://localhost:3001/api/package/${packageID}`)
+      axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/package/${packageID}`)
         .then(() => {
           setPackages(prevPackages =>
             prevPackages.filter(pkg => pkg._id !== packageID)

@@ -8,7 +8,8 @@ import {
   Avatar,
   Divider,
   ListItemIcon,
-  makeStyles 
+  makeStyles,
+  Button 
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,7 +17,6 @@ import {
   AccountCircle,
   ExitToApp,
   Settings,
-  Person,
   Edit,
   Book
 } from '@material-ui/icons';
@@ -68,6 +68,21 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiListItemIcon-root': {
       color: theme.palette.error.main
     }
+  },
+  loginButton: {
+    color: '#fff',
+    marginLeft: theme.spacing(1),
+    textTransform: 'none',
+    padding: theme.spacing(1, 2),
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)'
+    },
+    '& .MuiButton-startIcon': {
+      marginRight: theme.spacing(1),
+    }
+  },
+  largeIcon: {
+    fontSize: 32
   }
 }));
 
@@ -80,91 +95,78 @@ const Header = () => {
   const [profilePicture, setProfilePicture] = useState('');
   const navigate = useNavigate();
 
-  // Track menu open state separately
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
 
-// In your Header component, make sure the useEffect is properly handling the profile picture:
-useEffect(() => {
-  const handleLoginUpdate = (event) => {
-    const { username: newUsername, email, profilePicture: newProfilePicture } = event.detail;
-    
-    if (email === 'admin@gmail.com') {
-      setUsername('Admin');
-      setUserEmail(email);
-      setLoginType('admin');
-      setProfilePicture(newProfilePicture || "https://www.w3schools.com/howto/img_avatar.png");
-    } 
-    else if (newUsername) {
-      setUsername(newUsername);
-      setUserEmail(email || '');
-      setLoginType('user');
-      setProfilePicture(newProfilePicture || "https://www.w3schools.com/howto/img_avatar.png");
-    } 
-    else {
+  const checkAuthState = () => {
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedUsername = localStorage.getItem('username');
+    const storedProfilePicture = localStorage.getItem('profilePicture');
+
+    if (!storedUsername && !storedEmail) {
       setUsername('User');
       setUserEmail('');
       setLoginType('');
       setProfilePicture('');
+    } else if (storedEmail === 'admin@gmail.com') {
+      setUsername('Admin');
+      setUserEmail(storedEmail);
+      setLoginType('admin');
+      setProfilePicture(storedProfilePicture || defaultAvatar);
+    } else if (storedUsername) {
+      setUsername(storedUsername);
+      setUserEmail(storedEmail || '');
+      setLoginType('user');
+      setProfilePicture(storedProfilePicture || defaultAvatar);
     }
   };
 
-  window.addEventListener('loginUpdate', handleLoginUpdate);
+  useEffect(() => {
+    const handleLoginUpdate = () => {
+      checkAuthState();
+    };
 
-  const storedEmail = localStorage.getItem('userEmail');
-  const storedUsername = localStorage.getItem('username');
-  const storedProfilePicture = localStorage.getItem('profilePicture');
+    // Initial check
+    checkAuthState();
 
-  if (storedEmail === 'admin@gmail.com') {
-    setUsername('Admin');
-    setUserEmail(storedEmail);
-    setLoginType('admin');
-    setProfilePicture(storedProfilePicture || "https://www.w3schools.com/howto/img_avatar.png");
-  } else if (storedUsername) {
-    setUsername(storedUsername);
-    setUserEmail(storedEmail || '');
-    setLoginType('user');
-    setProfilePicture(storedProfilePicture || "https://www.w3schools.com/howto/img_avatar.png");
-  }
+    // Add event listener
+    window.addEventListener('loginUpdate', handleLoginUpdate);
 
-  return () => {
-    window.removeEventListener('loginUpdate', handleLoginUpdate);
-  };
-}, []);
-
+    return () => {
+      window.removeEventListener('loginUpdate', handleLoginUpdate);
+    };
+  }, []);
 
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
-    setIsMenuOpen(true);
   };
 
   const handleClose = () => {
     setAnchorEl(null);
-    setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
+    // Clear all auth-related data
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userId');
-    localStorage.removeItem('profilePicture'); // Clear profile picture on logout
+    localStorage.removeItem('profilePicture');
     
-    // Force state update before closing menu
+    // Reset state
     setUsername('User');
     setUserEmail('');
     setLoginType('');
     setProfilePicture('');
     
-    window.dispatchEvent(new CustomEvent('loginUpdate', {
-      detail: { username: 'User', email: '' }
-    }));
+    // Notify other components
+    window.dispatchEvent(new CustomEvent('loginUpdate'));
     
+    // Close menu
     handleClose();
+    
+    // Navigate to login page
     navigate('/login');
   };
-
-  // Default avatar URL if no profile picture is set
-  const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
 
   return (
     <Box className="header-container">
@@ -191,104 +193,105 @@ useEffect(() => {
             <SearchIcon />
           </IconButton>
 
-          <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
-            Hi, {username}
-          </Typography>
-          <IconButton color="inherit" onClick={handleProfileClick}>
-            <Avatar
-              src={profilePicture || defaultAvatar}
-              alt={username}
-              style={{ width: 40, height: 40 }}
-            />
-          </IconButton>
-
-          {isMenuOpen && (
-            <Menu
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              getContentAnchorEl={null}
-              PaperProps={{
-                className: classes.menuPaper
-              }}
-              elevation={3}
-            >
-              <Box className={classes.menuHeader}>
-                <Avatar 
+          {loginType ? (
+            <>
+              <Typography variant="body1" style={{ marginLeft: '8px', color: '#fff' }}>
+                Hi, {username}
+              </Typography>
+              <IconButton color="inherit" onClick={handleProfileClick}>
+                <Avatar
                   src={profilePicture || defaultAvatar}
-                  className={classes.avatarLarge}
+                  alt={username}
+                  style={{ width: 40, height: 40 }}
                 />
-                <Typography variant="subtitle1" className={classes.usernameText}>
-                  {username}
-                </Typography>
-                {userEmail && (
-                  <Typography variant="body2" className={classes.emailText}>
-                    {userEmail}
-                  </Typography>
-                )}
-              </Box>
-
-              {loginType === 'admin' && (
-                <>
-                  <MenuItem onClick={() => { navigate('/dashboard'); handleClose(); }}>
-                    <ListItemIcon>
-                      <Settings fontSize="small" />
-                    </ListItemIcon>
-                    Admin Dashboard
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleLogout} className={classes.logoutItem}>
-                    <ListItemIcon>
-                      <ExitToApp fontSize="small" />
-                    </ListItemIcon>
-                    Logout Admin
-                  </MenuItem>
-                </>
-              )}
-
-              {loginType === 'user' && (
-                <>
-                  <MenuItem onClick={() => { navigate('/edit-profile'); handleClose(); }}>
-                    <ListItemIcon>
-                      <Edit fontSize="small" />
-                    </ListItemIcon>
-                    Edit Profile
-                  </MenuItem>
-                  <MenuItem onClick={() => { navigate('/my-bookings'); handleClose(); }}>
-                    <ListItemIcon>
-                      <Book fontSize="small" />
-                    </ListItemIcon>
-                    My Bookings
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem onClick={handleLogout} className={classes.logoutItem}>
-                    <ListItemIcon>
-                      <ExitToApp fontSize="small" />
-                    </ListItemIcon>
-                    Logout
-                  </MenuItem>
-                </>
-              )}
-
-              {loginType === '' && (
-                <MenuItem onClick={() => { navigate('/login'); handleClose(); }}>
-                  <ListItemIcon>
-                    <AccountCircle fontSize="small" />
-                  </ListItemIcon>
-                  Login
-                </MenuItem>
-              )}
-            </Menu>
+              </IconButton>
+            </>
+          ) : (
+          <Button 
+            className={classes.loginButton}
+            startIcon={<AccountCircle style={{ fontSize: 32 }} />}  // Custom size
+            onClick={() => navigate('/login')}
+          >
+            Login
+          </Button>
           )}
+
+          <Menu
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            getContentAnchorEl={null}
+            PaperProps={{
+              className: classes.menuPaper
+            }}
+            elevation={3}
+          >
+            <Box className={classes.menuHeader}>
+              <Avatar 
+                src={profilePicture || defaultAvatar}
+                className={classes.avatarLarge}
+              />
+              <Typography variant="subtitle1" className={classes.usernameText}>
+                {username}
+              </Typography>
+              {userEmail && (
+                <Typography variant="body2" className={classes.emailText}>
+                  {userEmail}
+                </Typography>
+              )}
+            </Box>
+
+            {loginType === 'admin' && (
+              <>
+                <MenuItem onClick={() => { navigate('/dashboard'); handleClose(); }}>
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  Admin Dashboard
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout} className={classes.logoutItem}>
+                  <ListItemIcon>
+                    <ExitToApp fontSize="small" />
+                  </ListItemIcon>
+                  Logout Admin
+                </MenuItem>
+              </>
+            )}
+
+            {loginType === 'user' && (
+              <>
+                <MenuItem onClick={() => { navigate('/edit-profile'); handleClose(); }}>
+                  <ListItemIcon>
+                    <Edit fontSize="small" />
+                  </ListItemIcon>
+                  Edit Profile
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('/my-bookings'); handleClose(); }}>
+                  <ListItemIcon>
+                    <Book fontSize="small" />
+                  </ListItemIcon>
+                  My Bookings
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout} className={classes.logoutItem}>
+                  <ListItemIcon>
+                    <ExitToApp fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </>
+            )}
+          </Menu>
         </Box>
       </Box>
     </Box>

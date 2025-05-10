@@ -41,7 +41,7 @@ const ForgotPassword = () => {
 
     try {
       // Send request to the backend to initiate password reset
-      await axios.post('http://localhost:3001/user/forgot-password', { email });
+      await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/forgot-password', { email });
       swal("Success", "Password reset link sent to your email", "success");
     } catch (error) {
       console.error(error);

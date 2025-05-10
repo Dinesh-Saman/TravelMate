@@ -343,7 +343,7 @@ const DestinationDetails = () => {
     const fetchDestination = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3001/destination/destinations/${id}`);
+        const response = await axios.get(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/destinations/${id}`);
         setDestination(response.data.destination);
         setLoading(false);
       } catch (err) {

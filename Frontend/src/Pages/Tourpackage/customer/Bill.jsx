@@ -71,7 +71,7 @@ const Bill = () => {
 
     const handlePay = async () => {
         try {
-            const response = await axios.post('http://localhost:3001/api/book', {
+            const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/api/book', {
                 customerName: customerDetails.customerName,
                 email: customerDetails.email,
                 contactNumber: customerDetails.contactNumber,

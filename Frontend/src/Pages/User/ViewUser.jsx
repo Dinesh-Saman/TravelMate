@@ -235,7 +235,7 @@ const ViewUsers = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/user/users');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/users');
         
         if (Array.isArray(response.data)) {
           setUserData(response.data);
@@ -279,7 +279,7 @@ const ViewUsers = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/user/users/${id}`);
+        await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/users/${id}`);
         setUserData(userData.filter(user => user._id !== id));
         
         Swal.fire({

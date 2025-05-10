@@ -513,7 +513,7 @@ const BookingForm = () => {
         card_validity: cardValidityDate.toISOString()
       };
   
-      const response = await fetch('http://localhost:3001/booking', {
+      const response = await fetch('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/booking', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

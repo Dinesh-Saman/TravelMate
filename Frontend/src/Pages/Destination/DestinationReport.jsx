@@ -31,7 +31,7 @@ const DestinationReportPage = () => {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/destination/get-destinations');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/destination/get-destinations');
         
         if (Array.isArray(response.data)) {
           setDestinations(response.data);

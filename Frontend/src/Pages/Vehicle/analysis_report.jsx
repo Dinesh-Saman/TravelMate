@@ -27,16 +27,16 @@ const VehicleReportPage = () => {
     const fetchVehicleData = async () => {
       try {
         // Fetch all vehicles
-        const vehiclesResponse = await axios.get('http://localhost:3001/vehicle/get-vehicles');
+        const vehiclesResponse = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/get-vehicles');
         setVehicles(vehiclesResponse.data);
         setTotalVehicles(vehiclesResponse.data.length);
 
         // Fetch vehicle type counts
-        const typeResponse = await axios.get('http://localhost:3001/vehicle/type-counts');
+        const typeResponse = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/type-counts');
         setVehicleTypes(typeResponse.data);
 
         // Fetch status counts
-        const statusResponse = await axios.get('http://localhost:3001/vehicle/status-counts');
+        const statusResponse = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/vehicle/status-counts');
         setStatusCounts(statusResponse.data);
 
         setLoading(false);

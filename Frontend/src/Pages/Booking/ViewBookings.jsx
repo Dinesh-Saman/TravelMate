@@ -226,7 +226,7 @@ const ViewBookings = () => {
   useEffect(() => {
     const fetchBookingData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/booking');
+        const response = await axios.get('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/booking');
         
         if (Array.isArray(response.data)) {
           setBookingData(response.data);
@@ -266,7 +266,7 @@ const ViewBookings = () => {
     
     if (confirmResult.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/booking/${id}`);
+        await axios.delete(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/booking/${id}`);
         setBookingData(bookingData.filter(booking => booking.booking_id !== id));
         
         Swal.fire({

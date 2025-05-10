@@ -84,7 +84,7 @@ const RegistrationPage = () => {
 
     try {
       // Use axios for the POST request
-      const response = await axios.post('http://localhost:3001/admin/register', userData, {
+      const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/admin/register', userData, {
         headers: {
           'Content-Type': 'application/json',
         },

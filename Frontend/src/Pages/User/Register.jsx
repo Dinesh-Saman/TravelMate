@@ -319,7 +319,7 @@ const UserRegistration = () => {
     };
 
     try {
-      await axios.post('http://localhost:3001/user/register', newUser);
+      await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/user/register', newUser);
       swal("Success", "User registered successfully!", "success");
 
       // Reset form fields but keep the user ID

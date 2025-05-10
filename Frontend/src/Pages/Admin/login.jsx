@@ -52,7 +52,7 @@ const LoginPage = () => {
       setIsLoading(true);
       
       // Make API call to login endpoint
-      const response = await axios.post('http://localhost:3001/admin/login', {
+      const response = await axios.post('https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/admin/login', {
         email,
         password
       });

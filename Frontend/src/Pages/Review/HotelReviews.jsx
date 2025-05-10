@@ -248,10 +248,10 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
       // Check if we're updating an existing review
       if (review._id) {
         // Fixed: Use the correct endpoint for updating user reviews
-        endpoint = `http://localhost:3001/review/user-review/${review._id}`;
+        endpoint = `https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/user-review/${review._id}`;
         method = 'PUT';
       } else {
-        endpoint = `http://localhost:3001/review/reviews`;
+        endpoint = `https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/reviews`;
         method = 'POST';
       }
 
@@ -313,7 +313,7 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
     try {
       setLoading(true);
       // Use the MongoDB _id for deletion
-      const response = await fetch(`http://localhost:3001/review/reviews/${reviewToDelete._id}`, {
+      const response = await fetch(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/reviews/${reviewToDelete._id}`, {
         method: 'DELETE'
       });
 
@@ -341,7 +341,7 @@ const HotelReviews = ({ hotelId, initialReviews = [], currentUser }) => {
         const fetchReviews = async () => {
             try {
               setLoading(true);
-              const response = await fetch(`http://localhost:3001/review/hotels/${hotelId}/reviews?status=approved`);
+              const response = await fetch(`https://travelmatebackend-hshfxofqc-dineshs-projects-1830e570.vercel.app/review/hotels/${hotelId}/reviews?status=approved`);
               if (!response.ok) throw new Error('Failed to fetch reviews');
               const data = await response.json();
               setReviews(data.reviews || data);
